@@ -1,22 +1,27 @@
 #include "logger.h"
 
-Logger::Logger(QString fileName, QObject *parent) : QObject(parent) {
+Logger::Logger(const string &fileName) {
     m_showDate = true;
-    if (!fileName.isEmpty()) {
-        file = new QFile;
-        file->setFileName(fileName);
-        file->open(QIODevice::Append | QIODevice::Text);
+    if (!fileName.empty()) {
+//        file = new QFile;
+//        file->setFileName(fileName);
+//        file->open(QIODevice::Append | QIODevice::Text);
+        file = fopen(fileName.c_str(), "a+");
     }
 }
 
-void Logger::write(const QString &value) {
-    QString text = value;// + "";
-    if (m_showDate)
-        text = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss\t") + text + "\n";
-    QTextStream out(file);
-    out.setCodec("UTF-8");
-    if (file != nullptr) {
-        out << text;
+void Logger::write(const string &value) {
+    string text = value;
+    time_t now = time(0);
+    struct tm tstruct;
+    tstruct = *localtime(&now);
+//    char buf[20];
+//    sprintf(buf, "%04d-%02d-%02d-%02d-%02d-%02d",
+//            tstruct.tm_year, tstruct.tm_mon, tstruct.tm_mday, tstruct.tm_hour, tstruct.tm_min, tstruct.tm_sec);
+
+    if(file != nullptr){
+        fprintf(file, "%04d-%02d-%02d-%02d-%02d-%02d\t%s\n", tstruct.tm_year + 1900, tstruct.tm_mon + 1, tstruct.tm_mday, tstruct.tm_hour, tstruct.tm_min, tstruct.tm_sec, text.c_str());
+        fflush(file);
     }
 }
 
@@ -25,6 +30,7 @@ void Logger::setShowDateTime(bool value) {
 }
 
 Logger::~Logger() {
-    if (file != nullptr)
-        file->close();
+    if (file != nullptr){
+        fclose(file);
+    }
 }

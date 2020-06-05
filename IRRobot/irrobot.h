@@ -3,31 +3,20 @@
 
 #include "DataControl/datacontrol.h"
 
-#include <QByteArray>
-#include <QSerialPort>
-#include <QObject>
-#include <QtDebug>
-#include <QTimer>
-#include <QThread>
-
 #include <pthread.h>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <memory.h>
 using namespace std;
 
-//#include "Exception.h"
 #include "SerialPort.h"
 using namespace CppLinuxSerial;
-
-const uint16_t IR_MOVING_STATUS_THRESHOLD = 10;
-const uint16_t IR_BLOCKING_STATUS_THRESHOLD = 20;
-
-class IRRobot : public QObject{
-    Q_OBJECT
+class IRRobot
+{
 public:
-    explicit IRRobot(void* arg, QObject *parent = nullptr);
+    IRRobot(void* arg);
     ~IRRobot();
 
     void init();
@@ -43,8 +32,7 @@ public:
 private:
     DataControl *dataControl;
     SerialPort *serial;
-    QByteArray txData;
-    string rxString;
+    string txString, rxString;
 
     bool stateConnect;
 

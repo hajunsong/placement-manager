@@ -1,11 +1,6 @@
 #ifndef MAINVISIOINMODULE_H
 #define MAINVISIOINMODULE_H
 
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QtDebug>
-
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -14,10 +9,10 @@
 #include <iostream>
 #include <math.h>
 #include <time.h>
+using namespace std;
 
 #include "DataControl/datacontrol.h"
 
-using namespace std;
 
 class MainVisionModule
 {
@@ -48,8 +43,8 @@ private:
 
     pthread_t comm_tx, comm_rx;
 
-    QJsonObject jsonObjRecv;
-    QString orderMsg;
+//    QJsonObject jsonObjRecv;
+    string orderMsg;
 
     sockaddr_in server_addr, client_addr;
     bool comm_thread_rx_run, comm_thread_tx_run;

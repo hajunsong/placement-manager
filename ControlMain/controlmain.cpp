@@ -1,6 +1,6 @@
 #include "controlmain.h"
 
-ControlMain::ControlMain(QObject *parent) : QObject(parent)
+ControlMain::ControlMain()
 {
     dataControl = new DataControl();
 
@@ -34,6 +34,7 @@ void ControlMain::start(){
     mainVM->start();
 
     pthread_create(&mainControlThread, nullptr, mainControl, this);
+    pthread_join(mainControlThread, nullptr);
 }
 
 void ControlMain::stop(){

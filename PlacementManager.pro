@@ -1,5 +1,5 @@
 QT -= gui
-QT += core widgets serialport
+QT += core serialport
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -9,7 +9,6 @@ HEADERS += \
     MainVisionModule/mainvisionmodule.h \
     PlaceVisionModule/placevisionmodule.h \
     ControlMain/controlmain.h \
-    KeyInput/keyinput.h \
     Dynamixel/dynamixel.h \
     IRRobot/irrobot.h \
     IRRobot/Exception.h \
@@ -22,7 +21,6 @@ SOURCES += main.cpp \
     MainVisionModule/mainvisionmodule.cpp \
     PlaceVisionModule/placevisionmodule.cpp \
     ControlMain/controlmain.cpp \
-    KeyInput/keyinput.cpp \
     Dynamixel/dynamixel.cpp \
     IRRobot/irrobot.cpp \
     IRRobot/SerialPort.cpp \
