@@ -1,6 +1,6 @@
 #include "irrobot.h"
 
-IRRobot::IRRobot(void *arg/*, QObject *parent) : QObject(parent*/)
+IRRobot::IRRobot(void *arg, QObject *parent) : QObject(parent)
 {
     dataControl = static_cast<DataControl*>(arg);
 
@@ -10,8 +10,8 @@ IRRobot::IRRobot(void *arg/*, QObject *parent) : QObject(parent*/)
     head[1] = 0xff;
     head[2] = 0xff;
 
+    txData = "";
     rxString = "";
-    txString = "";
 
     stateConnect = false;
 }
@@ -80,7 +80,7 @@ void* IRRobot::comm_func(void* arg){
 }
 
 void IRRobot::setGoalPosition(char id){
-    txString.clear();
+    txData.clear();
     size = 5;
     command = 0xf3;
     address = 0x86;
@@ -89,41 +89,41 @@ void IRRobot::setGoalPosition(char id){
     data[1] = dataControl->IRR_Tar_Pos_1 >> 8;
 
     for(int i = 0; i < 3; i++){
-        txString.push_back(head[i]);
+        txData.append(head[i]);
     }
-    txString.push_back(id);
-    txString.push_back(size);
-    txString.push_back(command);
-    txString.push_back(address);
-    txString.push_back(data[0]);
-    txString.push_back(data[1]);
+    txData.append(id);
+    txData.append(size);
+    txData.append(command);
+    txData.append(address);
+    txData.append(data[0]);
+    txData.append(data[1]);
 
     checksum = id + size + command + address + data[0] + data[1];
     checksum = (checksum & 0x000000ff)^ 0x000000ff;
-    txString.push_back(checksum);
-    serial->Write(txString);
+    txData.append(checksum);
+    serial->Write(txData.toStdString());
 }
 
 void IRRobot::getPresentPosition(char id){
-    txString.clear();
+    txData.clear();
     size = 4;
     command = 0xf2;
     address = 0x8c;
     length = 0x02;
 
     for(int i = 0; i < 3; i++){
-        txString.push_back(head[i]);
+        txData.append(head[i]);
     }
-    txString.push_back(id);
-    txString.push_back(size);
-    txString.push_back(command);
-    txString.push_back(address);
-    txString.push_back(length);
+    txData.append(id);
+    txData.append(size);
+    txData.append(command);
+    txData.append(address);
+    txData.append(length);
 
     checksum = id + size + command + address + length;
     checksum = (checksum & 0x000000ff)^ 0x000000ff;
-    txString.push_back(checksum);
-    serial->Write(txString);
+    txData.append(checksum);
+    serial->Write(txData.toStdString());
 
     serial->Read(rxString);
     char recv_data[9] = {0,};
@@ -146,7 +146,7 @@ void IRRobot::getPresentPosition(char id){
 
 void IRRobot::setGoalPositionDual()
 {
-    txString.clear();
+    txData.clear();
     id = 0xfe;
     size = 0x0A;
     command = 0x73;
@@ -161,29 +161,29 @@ void IRRobot::setGoalPositionDual()
     data2[1] = dataControl->IRR_Tar_Pos_2 >> 8;
 
     for(int i = 0; i < 3; i++){
-        txString.push_back(head[i]);
+        txData.append(head[i]);
     }
-    txString.push_back(id);
-    txString.push_back(size);
-    txString.push_back(command);
-    txString.push_back(address);
-    txString.push_back(length);
-    txString.push_back(id1);
-    txString.push_back(data1[0]);
-    txString.push_back(data1[1]);
-    txString.push_back(id2);
-    txString.push_back(data2[0]);
-    txString.push_back(data2[1]);
+    txData.append(id);
+    txData.append(size);
+    txData.append(command);
+    txData.append(address);
+    txData.append(length);
+    txData.append(id1);
+    txData.append(data1[0]);
+    txData.append(data1[1]);
+    txData.append(id2);
+    txData.append(data2[0]);
+    txData.append(data2[1]);
 
     checksum = id + size + command + address + length + id1 + data1[0] + data1[1] + id2 + data2[0] + data2[1];
     checksum = (checksum & 0x000000ff)^ 0x000000ff;
-    txString.push_back(checksum);
-    serial->Write(txString);
+    txData.append(checksum);
+    serial->Write(txData.toStdString());
 }
 
 void IRRobot::setMotonOffDual()
 {
-    txString.clear();
+    txData.clear();
     id = 0xfe;
     size = 0x08;
     command = 0x73;
@@ -196,27 +196,27 @@ void IRRobot::setMotonOffDual()
     data2[0] = 0;
 
     for(int i = 0; i < 3; i++){
-        txString.push_back(head[i]);
+        txData.append(head[i]);
     }
-    txString.push_back(id);
-    txString.push_back(size);
-    txString.push_back(command);
-    txString.push_back(address);
-    txString.push_back(length);
-    txString.push_back(id1);
-    txString.push_back(data1[0]);
-    txString.push_back(id2);
-    txString.push_back(data2[0]);
+    txData.append(id);
+    txData.append(size);
+    txData.append(command);
+    txData.append(address);
+    txData.append(length);
+    txData.append(id1);
+    txData.append(data1[0]);
+    txData.append(id2);
+    txData.append(data2[0]);
 
     checksum = id + size + command + address + length + id1 + data1[0] + id2 + data2[0];
     checksum = (checksum & 0x000000ff)^ 0x000000ff;
-    txString.push_back(checksum);
-    serial->Write(txString);
+    txData.append(checksum);
+    serial->Write(txData.toStdString());
 }
 
 void IRRobot::setMotonOff(char id)
 {
-    txString.clear();
+    txData.clear();
     id = 0xfe;
     size = 0x0A;
     command = 0x73;
@@ -229,20 +229,20 @@ void IRRobot::setMotonOff(char id)
     data2[0] = 0;
 
     for(int i = 0; i < 3; i++){
-        txString.push_back(head[i]);
+        txData.append(head[i]);
     }
-    txString.push_back(id);
-    txString.push_back(size);
-    txString.push_back(command);
-    txString.push_back(address);
-    txString.push_back(length);
-    txString.push_back(id1);
-    txString.push_back(data1[0]);
-    txString.push_back(id2);
-    txString.push_back(data2[0]);
+    txData.append(id);
+    txData.append(size);
+    txData.append(command);
+    txData.append(address);
+    txData.append(length);
+    txData.append(id1);
+    txData.append(data1[0]);
+    txData.append(id2);
+    txData.append(data2[0]);
 
     checksum = id + size + command + address + length + id1 + data1[0] + id2 + data2[0];
     checksum = (checksum & 0x000000ff)^ 0x000000ff;
-    txString.push_back(checksum);
-    serial->Write(txString);
+    txData.append(checksum);
+    serial->Write(txData.toStdString());
 }

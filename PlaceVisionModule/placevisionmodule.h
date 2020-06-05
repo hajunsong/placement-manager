@@ -1,6 +1,10 @@
 #ifndef PLACEVISIONMODULE_H
 #define PLACEVISIONMODULE_H
 
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QtDebug>
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -9,10 +13,10 @@
 #include <errno.h>
 #include <iostream>
 #include <math.h>
-using namespace std;
 
 #include "DataControl/datacontrol.h"
 
+using namespace std;
 
 class PlaceVisionModule
 {
@@ -42,8 +46,8 @@ private:
 
     pthread_t comm_tx, comm_rx;
 
-//    QJsonObject jsonObjRecv;
-    string orderMsg;
+    QJsonObject jsonObjRecv;
+    QString orderMsg;
 
     sockaddr_in server_addr, client_addr;
     bool comm_thread_rx_run, comm_thread_tx_run;

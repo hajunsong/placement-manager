@@ -82,13 +82,13 @@ void *MainVisionModule::comm_rx_func(void *arg)
         }
         if(pThis->byteLen > 0){
 //            cout << pThis->buf << endl;
-//            pThis->jsonObjRecv = QJsonDocument::fromJson(pThis->buf).object();
-//            pThis->orderMsg = pThis->jsonObjRecv["order"].toString();
-////            qDebug() << pThis->orderMsg;
-//            pThis->dataControl->orderMsg = pThis->orderMsg;
-//            pThis->dataControl->logger->write("Order Msg : " + pThis->dataControl->orderMsg);
+            pThis->jsonObjRecv = QJsonDocument::fromJson(pThis->buf).object();
+            pThis->orderMsg = pThis->jsonObjRecv["order"].toString();
+//            qDebug() << pThis->orderMsg;
+            pThis->dataControl->orderMsg = pThis->orderMsg;
+            pThis->dataControl->logger->write("Order Msg : " + pThis->dataControl->orderMsg);
 
-//            pThis->dataControl->receive_flag = true;
+            pThis->dataControl->receive_flag = true;
 
 //            QJsonArray jsonArrayDrop;
 //            jsonArrayDrop.push_back(pThis->dataControl->dropping);
@@ -139,46 +139,46 @@ void *MainVisionModule::comm_tx_func(void *arg)
         t1 = clock();
         cnt++;
         usleep(100000);
-//        QJsonArray jsonArrayDrop;
-//        jsonArrayDrop.push_back(pThis->dataControl->dropping);
+        QJsonArray jsonArrayDrop;
+        jsonArrayDrop.push_back(pThis->dataControl->dropping);
 
-//        QJsonArray jsonArrayRepickin, jsonArrayOffset;
-//        jsonArrayOffset.push_back(pThis->dataControl->x_offset);
-//        jsonArrayOffset.push_back(pThis->dataControl->y_offset);
-//        jsonArrayOffset.push_back(0);
-//        jsonArrayOffset.push_back(pThis->dataControl->rotation_offset);
-//        jsonArrayRepickin.push_back(pThis->dataControl->state_state == 'O' ? true : false);
-//        jsonArrayRepickin.push_back(jsonArrayOffset);
+        QJsonArray jsonArrayRepickin, jsonArrayOffset;
+        jsonArrayOffset.push_back(pThis->dataControl->x_offset);
+        jsonArrayOffset.push_back(pThis->dataControl->y_offset);
+        jsonArrayOffset.push_back(0);
+        jsonArrayOffset.push_back(pThis->dataControl->rotation_offset);
+        jsonArrayRepickin.push_back(pThis->dataControl->state_state == 'O' ? true : false);
+        jsonArrayRepickin.push_back(jsonArrayOffset);
 
-//        QJsonObject jsonObjState;
-//        jsonObjState.insert("drop", jsonArrayDrop);
-//        jsonObjState.insert("repicking", jsonArrayRepickin);
+        QJsonObject jsonObjState;
+        jsonObjState.insert("drop", jsonArrayDrop);
+        jsonObjState.insert("repicking", jsonArrayRepickin);
 
-//        QJsonObject jsonObjSend;
-//        jsonObjSend.insert("order", QJsonValue::fromVariant("sendstate"));
-//        jsonObjSend.insert("state", jsonObjState);
+        QJsonObject jsonObjSend;
+        jsonObjSend.insert("order", QJsonValue::fromVariant("sendstate"));
+        jsonObjSend.insert("state", jsonObjState);
 
-//        QJsonDocument jsonDocSend(jsonObjSend);
-//        QByteArray sendData = jsonDocSend.toJson(QJsonDocument::Compact);
+        QJsonDocument jsonDocSend(jsonObjSend);
+        QByteArray sendData = jsonDocSend.toJson(QJsonDocument::Compact);
 
-//        pThis->sendByteLen = sendData.length();
-//        send(pThis->clientSockFD, QString::number(pThis->sendByteLen).leftJustified(16).toStdString().c_str(), 16, 0);
+        pThis->sendByteLen = sendData.length();
+        send(pThis->clientSockFD, QString::number(pThis->sendByteLen).leftJustified(16).toStdString().c_str(), 16, 0);
 
-//        memset(pThis->bufSend, 0, MAXSENDBUFSIZE);
-//        strcpy(pThis->bufSend, sendData);
-//        pThis->sendByteLen = send(pThis->clientSockFD, pThis->bufSend, static_cast<size_t>(pThis->sendByteLen), 0);
+        memset(pThis->bufSend, 0, MAXSENDBUFSIZE);
+        strcpy(pThis->bufSend, sendData);
+        pThis->sendByteLen = send(pThis->clientSockFD, pThis->bufSend, static_cast<size_t>(pThis->sendByteLen), 0);
 
-//        if(pThis->sendByteLen < 0){
-//            cout << endl << "[MVM]Send Error" << endl;
-//            pThis->dataControl->logger->write("[MVM]Send Error");
-//            pThis->restart();
-//        }
+        if(pThis->sendByteLen < 0){
+            cout << endl << "[MVM]Send Error" << endl;
+            pThis->dataControl->logger->write("[MVM]Send Error");
+            pThis->restart();
+        }
 
-//        cout << endl << "Send data size : " << pThis->sendByteLen << endl;
-//        cout << "Send data : " << pThis->bufSend << endl;
+        cout << endl << "Send data size : " << pThis->sendByteLen << endl;
+        cout << "Send data : " << pThis->bufSend << endl;
 
-//        pThis->dataControl->logger->write("Send data size : " + QString::number(pThis->sendByteLen));
-//        pThis->dataControl->logger->write("Send data : " + sendData);
+        pThis->dataControl->logger->write("Send data size : " + QString::number(pThis->sendByteLen));
+        pThis->dataControl->logger->write("Send data : " + sendData);
     }
 
     return nullptr;

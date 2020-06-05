@@ -1,6 +1,6 @@
 #include "controlmain.h"
 
-ControlMain::ControlMain()
+ControlMain::ControlMain(QObject *parent) : QObject(parent)
 {
     dataControl = new DataControl();
 
@@ -9,11 +9,11 @@ ControlMain::ControlMain()
     placeVM = new PlaceVisionModule(dataControl, 6666);
     usleep(10000);
 
-    dxlControl = new DxlControl(dataControl);
-    dxlControl->init();
+//    dxlControl = new DxlControl(dataControl);
+//    dxlControl->init();
 
-    irRobot = new IRRobot(dataControl);
-    irRobot->init();
+//    irRobot = new IRRobot(dataControl);
+//    irRobot->init();
 
     conveyor = new Conveyor();
 
@@ -28,13 +28,12 @@ ControlMain::~ControlMain(){
 }
 
 void ControlMain::start(){
-    dxlControl->start();
-    irRobot->start();
+//    dxlControl->start();
+//    irRobot->start();
     placeVM->start();
     mainVM->start();
 
     pthread_create(&mainControlThread, nullptr, mainControl, this);
-    pthread_join(mainControlThread, nullptr);
 }
 
 void ControlMain::stop(){
@@ -161,7 +160,7 @@ void* ControlMain::mainControl(void *arg){
                 if(!pThis->dataControl->repicking_object){
                     pThis->dataControl->dropping = false;
                     if(!pThis->dataControl->device_operate){
-                        pThis->run_device();
+//                        pThis->run_device();
                     }
                     pThis->dataControl->dropping = true;
                 }
@@ -175,7 +174,7 @@ void* ControlMain::mainControl(void *arg){
                 if(pThis->dataControl->dropped){
                     pThis->dataControl->dropping = false;
                     if(!pThis->dataControl->device_operate){
-                        pThis->run_device();
+//                        pThis->run_device();
                     }
                     pThis->dataControl->dropping = true;
                     pThis->dataControl->dropped = false;

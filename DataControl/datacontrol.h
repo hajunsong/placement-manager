@@ -2,10 +2,8 @@
 #define DATACONTROL_H
 #include <stdlib.h>
 #include <stdio.h>
-#include <iostream>
-#include <sys/stat.h>
-#include <sys/types.h>
-using namespace std;
+#include <QByteArray>
+#include <QString>
 
 #include "Logger/logger.h"
 
@@ -13,9 +11,6 @@ const int MAXCONNECTIONS = 5;
 const int MAXWAITBUFSIZE = 4096;
 const int MAXSENDBUFSIZE = 1024;
 const int MAXRECEIVEBUFSIZE = 1024;
-
-const uint16_t IR_MOVING_STATUS_THRESHOLD = 10;
-const uint16_t IR_BLOCKING_STATUS_THRESHOLD = 20;
 
 class DataControl
 {
@@ -31,7 +26,7 @@ public:
     int i_r_x_offset, i_r_y_offset, i_r_rotation_offset;
 
     bool repicking_object, dropped, device_operate, dropping;
-    string orderMsg, orderMsgPrev;
+    QString orderMsg, orderMsgPrev;
 
     int16_t Axis1_TarPos, Axis2_TarPos, Axis1_CurPos, Axis2_CurPos;
 
