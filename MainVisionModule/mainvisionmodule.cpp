@@ -86,7 +86,7 @@ void *MainVisionModule::comm_rx_func(void *arg)
             pThis->orderMsg = pThis->jsonObjRecv["order"].toString();
 //            qDebug() << pThis->orderMsg;
             pThis->dataControl->orderMsg = pThis->orderMsg;
-            pThis->dataControl->logger->write("Order Msg : " + pThis->dataControl->orderMsg);
+            pThis->dataControl->logger->write("Order Msg : " + pThis->dataControl->orderMsg.toStdString());
 
             pThis->dataControl->receive_flag = true;
 
@@ -133,7 +133,7 @@ void *MainVisionModule::comm_tx_func(void *arg)
     MainVisionModule* pThis = static_cast<MainVisionModule*>(arg);
     pThis->comm_thread_tx_run = true;
     int cnt = -1;
-    clock_t t1;
+    clock_t t1 = 0;
     while(pThis->comm_thread_tx_run){
         cout << (double)((clock() - t1)/1000) << endl;
         t1 = clock();
@@ -177,8 +177,8 @@ void *MainVisionModule::comm_tx_func(void *arg)
         cout << endl << "Send data size : " << pThis->sendByteLen << endl;
         cout << "Send data : " << pThis->bufSend << endl;
 
-        pThis->dataControl->logger->write("Send data size : " + QString::number(pThis->sendByteLen));
-        pThis->dataControl->logger->write("Send data : " + sendData);
+        pThis->dataControl->logger->write("Send data size : " + QString::number(pThis->sendByteLen).toStdString());
+        pThis->dataControl->logger->write("Send data : " + sendData.toStdString());
     }
 
     return nullptr;

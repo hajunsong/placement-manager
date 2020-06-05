@@ -47,10 +47,19 @@ DataControl::DataControl(){
     IRR_Bfr_Pos_1 = 10000;
     IRR_Bfr_Pos_2 = 10000;
 
-    QDateTime date;
-    QDir dir("./");
-    dir.mkdir("logging");
-    QString fileName = "./logging/" + date.currentDateTime().toString("yyyy-MM-dd-hh-mm-ss") + ".txt";
+    time_t now = time(0);
+    struct tm tstruct;
+    char buf[80];
+    tstruct = *localtime(&now);
+    sprintf(buf, "%04d-%02d-%02d-%02d-%02d-%02d",
+            tstruct.tm_year + 1900, tstruct.tm_mon + 1, tstruct.tm_mday, tstruct.tm_hour, tstruct.tm_min, tstruct.tm_sec);
+
+    mkdir("./logging", 0777);
+
+    string fileName = "./logging/";
+    fileName.append(buf);
+    fileName.append(".txt");
+
     logger = new Logger(fileName);
 }
 

@@ -1,6 +1,6 @@
 #include "controlmain.h"
 
-ControlMain::ControlMain(QObject *parent) : QObject(parent)
+ControlMain::ControlMain()
 {
     dataControl = new DataControl();
 

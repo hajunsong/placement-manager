@@ -1,9 +1,6 @@
 #ifndef CONTROLMAIN_H
 #define CONTROLMAIN_H
 
-#include <QObject>
-#include <QCloseEvent>
-
 #include "DataControl/datacontrol.h"
 #include "MainVisionModule/mainvisionmodule.h"
 #include "PlaceVisionModule/placevisionmodule.h"
@@ -14,11 +11,10 @@
 #include <pthread.h>
 #include <time.h>
 
-class ControlMain : public QObject
+class ControlMain
 {
-    Q_OBJECT
 public:
-    explicit ControlMain(QObject *parent = nullptr);
+    ControlMain();
     ~ControlMain();
     void start();
     void stop();
@@ -45,11 +41,6 @@ private:
     void run_device();
     void dxl_wait();
     void grip_wait();
-signals:
-
-public slots:
-
-
 };
 
 #endif // CONTROLMAIN_H

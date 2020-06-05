@@ -68,7 +68,7 @@ void *PlaceVisionModule::comm_rx_func(void *arg)
 //    pthread_create(&pThis->comm_tx, nullptr, comm_tx_func, pThis);
 
     pThis->comm_thread_rx_run = true;
-    int cnt = 0;
+    // int cnt = 0;
 
     while(pThis->comm_thread_rx_run){
 //        pThis->sendByteLen = send(pThis->clientSockFD, pThis->bufSend, sizeof(bufSend), 0);
@@ -153,10 +153,10 @@ void *PlaceVisionModule::comm_rx_func(void *arg)
 //                printf("[r_offset]x:=%3.4f\t y:=%3.4f\t r:=%3.4f\n", pThis->dataControl->r_x_offset, pThis->dataControl->r_y_offset, pThis->dataControl->r_rotation_offset);
 //            }
 
-            pThis->dataControl->logger->write("[offset] x:=" + QString::number(pThis->dataControl->x_offset) +
-                                              ",y:=" + QString::number(pThis->dataControl->y_offset) +
-                                              ",z:=" + QString::number(pThis->dataControl->rotation_offset));
-            pThis->dataControl->logger->write("repicking object : " + QString::number(pThis->dataControl->repicking_object));
+            pThis->dataControl->logger->write("[offset] x:=" + QString::number(pThis->dataControl->x_offset).toStdString() +
+                                              ",y:=" + QString::number(pThis->dataControl->y_offset).toStdString() +
+                                              ",z:=" + QString::number(pThis->dataControl->rotation_offset).toStdString());
+            pThis->dataControl->logger->write("repicking object : " + QString::number(pThis->dataControl->repicking_object).toStdString());
 
 //            pThis->sendByteLen = send(pThis->clientSockFD, pThis->bufSend, sizeof(bufSend), 0);
         }

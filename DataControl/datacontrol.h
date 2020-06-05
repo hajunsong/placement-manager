@@ -2,15 +2,22 @@
 #define DATACONTROL_H
 #include <stdlib.h>
 #include <stdio.h>
-#include <QByteArray>
-#include <QString>
+#include <iostream>
+#include <sys/stat.h>
+#include <sys/types.h>
+using namespace std;
 
 #include "Logger/logger.h"
+
+#include <QString>
 
 const int MAXCONNECTIONS = 5;
 const int MAXWAITBUFSIZE = 4096;
 const int MAXSENDBUFSIZE = 1024;
 const int MAXRECEIVEBUFSIZE = 1024;
+
+const uint16_t IR_MOVING_STATUS_THRESHOLD = 10;
+const uint16_t IR_BLOCKING_STATUS_THRESHOLD = 20;
 
 class DataControl
 {
