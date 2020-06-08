@@ -16,30 +16,35 @@ MainVisionModule::~MainVisionModule(){
 }
 
 void MainVisionModule::start(){
-    pthread_create(&comm_rx, nullptr, comm_rx_func, this);
+    listenSockFD = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(listenSockFD < 0){
+        cout << endl << "[MVM]socket create error" << endl;
+    }
+
+    int on = 1;
+    if(setsockopt(listenSockFD, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&on), sizeof(on)) < 0){
+        cout << endl << "[MVM]set option curLen = 0; error!!" << endl;
+    }
+
+    server_addr.sin_addr.s_addr = inet_addr(TCP_ADDRESS.c_str());
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+
+    if(bind(listenSockFD, reinterpret_cast<struct sockaddr*>(&server_addr), sizeof(server_addr)) < 0){
+        cout << endl << "[MVM]bind error" << endl;
+    }
+
+    while(true){
+        pthread_create(&comm_rx, nullptr, comm_rx_func, this);
+        pthread_join(comm_rx, nullptr);
+        shutdown(clientSockFD, SHUT_RDWR);
+        usleep(1000000);
+    }
 }
 
 void *MainVisionModule::comm_rx_func(void *arg)
 {
     MainVisionModule* pThis = static_cast<MainVisionModule*>(arg);
-
-    pThis->listenSockFD = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(pThis->listenSockFD < 0){
-        cout << endl << "[MVM]socket create error" << endl;
-    }
-
-    int on = 1;
-    if(setsockopt(pThis->listenSockFD, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&on), sizeof(on)) < 0){
-        cout << endl << "[MVM]set option curLen = 0; error!!" << endl;
-    }
-
-    pThis->server_addr.sin_addr.s_addr = inet_addr("192.168.0.123");
-    pThis->server_addr.sin_family = AF_INET;
-    pThis->server_addr.sin_port = htons(pThis->port);
-
-    if(bind(pThis->listenSockFD, reinterpret_cast<struct sockaddr*>(&pThis->server_addr), sizeof(server_addr)) < 0){
-        cout << endl << "[MVM]bind error" << endl;
-    }
 
     cout << "[MVM]server running waiting. Waiting client..." << endl;
 
@@ -77,53 +82,27 @@ void *MainVisionModule::comm_rx_func(void *arg)
 
         if(pThis->byteLen == 0 || pThis->byteLen > MAXRECEIVEBUFSIZE){
             cout << endl << "[MVM]client" << inet_ntoa(pThis->client_addr.sin_addr) << "closed." << endl;
-            close(pThis->clientSockFD);
-            break;
+            pThis->dataControl->receive_flag = false;
+            pThis->comm_thread_rx_run = false;
         }
         if(pThis->byteLen > 0){
 //            cout << pThis->buf << endl;
-            pThis->jsonObjRecv = QJsonDocument::fromJson(pThis->buf).object();
-            pThis->orderMsg = pThis->jsonObjRecv["order"].toString();
-//            qDebug() << pThis->orderMsg;
+
+            pThis->jsonDocument.ParseInsitu(pThis->buf);
+            pThis->orderMsg = pThis->jsonDocument["order"].GetString();
+
             pThis->dataControl->orderMsg = pThis->orderMsg;
-            pThis->dataControl->logger->write("Order Msg : " + pThis->dataControl->orderMsg.toStdString());
+            pThis->dataControl->logger->write("Order Msg : " + pThis->dataControl->orderMsg);
+            cout << "Order Msg ; " << pThis->dataControl->orderMsg << endl;
 
             pThis->dataControl->receive_flag = true;
-
-//            QJsonArray jsonArrayDrop;
-//            jsonArrayDrop.push_back(pThis->dataControl->dropping);
-
-//            QJsonArray jsonArrayOffset;
-//            jsonArrayOffset.push_back(pThis->dataControl->state_state == 'O' ? true : false);
-//            jsonArrayOffset.push_back(pThis->dataControl->x_offset);
-//            jsonArrayOffset.push_back(pThis->dataControl->y_offset);
-//            jsonArrayOffset.push_back(0);
-//            jsonArrayOffset.push_back(pThis->dataControl->rotation_offset);
-
-//            QJsonObject jsonObjState;
-//            jsonObjState.insert("drop", jsonArrayDrop);
-//            jsonObjState.insert("repicking", jsonArrayOffset);
-
-//            QJsonObject jsonObjSend;
-//            jsonObjSend.insert("order", QJsonValue::fromVariant("sendstate"));
-//            jsonObjSend.insert("state", jsonObjState);
-
-//            QJsonDocument jsonDocSend(jsonObjSend);
-//            QByteArray sendData = jsonDocSend.toJson().simplified().replace("{ ", "{").replace("[ ","[").replace(" ]","]").replace(" }", "}").replace("]}}", "]]}}").replace("false, ","false, [");
-
-//            pThis->sendByteLen = sendData.length();
-//            send(pThis->clientSockFD, QString::number(pThis->sendByteLen).leftJustified(16).toStdString().c_str(), 16, 0);
-
-//            memset(pThis->bufSend, 0, MAXSENDBUFSIZE);
-//            strcpy(pThis->bufSend, sendData);
-//            pThis->sendByteLen = send(pThis->clientSockFD, pThis->bufSend, static_cast<size_t>(pThis->sendByteLen), 0);
-
-//            cout << endl << "Send data size : " << pThis->sendByteLen << endl;
-//            cout << "Send data : " << pThis->bufSend << endl;
         }
     }
-    cout << "Finish Thread Main Vision Module" << endl;
-    pThis->dataControl->logger->write("Finish Thread Main Vision Module");
+    cout << "Finish RX Thread Main Vision Module" << endl;
+    pThis->dataControl->logger->write("Finish RX Thread Main Vision Module");
+
+    pThis->comm_thread_tx_run = false;
+    pthread_join(pThis->comm_tx, nullptr);
 
     return nullptr;
 }
@@ -131,6 +110,10 @@ void *MainVisionModule::comm_rx_func(void *arg)
 void *MainVisionModule::comm_tx_func(void *arg)
 {
     MainVisionModule* pThis = static_cast<MainVisionModule*>(arg);
+    while(!pThis->comm_thread_rx_run){
+        usleep(1000);
+    }
+
     pThis->comm_thread_tx_run = true;
     int cnt = -1;
     clock_t t1 = 0;
@@ -139,62 +122,75 @@ void *MainVisionModule::comm_tx_func(void *arg)
         t1 = clock();
         cnt++;
         usleep(100000);
-        QJsonArray jsonArrayDrop;
-        jsonArrayDrop.push_back(pThis->dataControl->dropping);
 
-        QJsonArray jsonArrayRepickin, jsonArrayOffset;
-        jsonArrayOffset.push_back(pThis->dataControl->x_offset);
-        jsonArrayOffset.push_back(pThis->dataControl->y_offset);
-        jsonArrayOffset.push_back(0);
-        jsonArrayOffset.push_back(pThis->dataControl->rotation_offset);
-        jsonArrayRepickin.push_back(pThis->dataControl->state_state == 'O' ? true : false);
-        jsonArrayRepickin.push_back(jsonArrayOffset);
+        StringBuffer s;
+        Writer<StringBuffer> writer(s);
 
-        QJsonObject jsonObjState;
-        jsonObjState.insert("drop", jsonArrayDrop);
-        jsonObjState.insert("repicking", jsonArrayRepickin);
+        writer.StartObject();
+        writer.Key("order");
+        writer.String("sendstate");
+        writer.Key("state");
+        writer.StartObject();
+        writer.Key("drop");
+        writer.StartArray();
+        writer.Bool(pThis->dataControl->dropping);
+        writer.EndArray();
+        writer.Key("repicking");
+        writer.StartArray();
+        writer.Bool(pThis->dataControl->state_state == 'O' ? true : false);
+        writer.StartArray();
+        writer.Double(pThis->dataControl->x_offset);
+        writer.Double(pThis->dataControl->y_offset);
+        writer.Double(0);
+        writer.Double(pThis->dataControl->rotation_offset);
+        writer.EndArray();
+        writer.EndArray();
+        writer.EndObject();
+        writer.EndObject();
 
-        QJsonObject jsonObjSend;
-        jsonObjSend.insert("order", QJsonValue::fromVariant("sendstate"));
-        jsonObjSend.insert("state", jsonObjState);
+//        cout << s.GetString() << endl;
 
-        QJsonDocument jsonDocSend(jsonObjSend);
-        QByteArray sendData = jsonDocSend.toJson(QJsonDocument::Compact);
+        if (pThis->comm_thread_tx_run){
+            pThis->len = s.GetLength();
+            stringstream tmp;
+            tmp.width(16);
+            tmp.setf(ios_base::left);
+            tmp << pThis->len;
+            pThis->sendByteLen = send(pThis->clientSockFD, tmp.str().c_str(), 16, 0);
+            if(pThis->sendByteLen < 0){
+                cout << endl << "[MVM]Send Error" << endl;
+                pThis->dataControl->logger->write("[MVM]Send Error");
+                pThis->comm_thread_tx_run = false;
+            }
 
-        pThis->sendByteLen = sendData.length();
-        send(pThis->clientSockFD, QString::number(pThis->sendByteLen).leftJustified(16).toStdString().c_str(), 16, 0);
+            memset(pThis->bufSend, 0, MAXSENDBUFSIZE);
+            strcpy(pThis->bufSend, s.GetString());
+            pThis->sendByteLen = send(pThis->clientSockFD, pThis->bufSend, static_cast<size_t>(pThis->len), 0);
 
-        memset(pThis->bufSend, 0, MAXSENDBUFSIZE);
-        strcpy(pThis->bufSend, sendData);
-        pThis->sendByteLen = send(pThis->clientSockFD, pThis->bufSend, static_cast<size_t>(pThis->sendByteLen), 0);
+            if(pThis->sendByteLen < 0){
+                cout << endl << "[MVM]Send Error" << endl;
+                pThis->dataControl->logger->write("[MVM]Send Error");
+                pThis->comm_thread_tx_run = false;
+            }
 
-        if(pThis->sendByteLen < 0){
-            cout << endl << "[MVM]Send Error" << endl;
-            pThis->dataControl->logger->write("[MVM]Send Error");
-            pThis->restart();
+            cout << endl << "Send data size : " << pThis->sendByteLen << endl;
+            cout << "Send data : " << pThis->bufSend << endl;
+
+            pThis->dataControl->logger->write("Send data size : " + to_string(pThis->len));
+            pThis->msg = "";
+            pThis->msg.append("Send data : ");
+            pThis->msg.append(s.GetString());
+            pThis->dataControl->logger->write(pThis->msg);
         }
-
-        cout << endl << "Send data size : " << pThis->sendByteLen << endl;
-        cout << "Send data : " << pThis->bufSend << endl;
-
-        pThis->dataControl->logger->write("Send data size : " + QString::number(pThis->sendByteLen).toStdString());
-        pThis->dataControl->logger->write("Send data : " + sendData.toStdString());
     }
+    cout << "Finish TX Thread Main Vision Module" << endl;
+    pThis->dataControl->logger->write("Finish TX Thread Main Vision Module");
 
     return nullptr;
 }
 
 void MainVisionModule::stop(){
     cout << "Stop Main Vision Module Comm" << endl;
-    close(clientSockFD);
     comm_thread_rx_run = false;
-    comm_thread_tx_run = false;
     pthread_join(comm_rx, nullptr);
-    pthread_join(comm_tx, nullptr);
-}
-
-void MainVisionModule::restart(){
-    cout << "Restart Main Vison Module Comm" << endl;
-    stop();
-    start();
 }

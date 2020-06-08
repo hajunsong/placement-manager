@@ -13,7 +13,7 @@ DataControl::DataControl(){
     repicking_object = false;
     dropped = false;
     device_operate = false;
-    dropping = true;
+    dropping = false;
     orderMsg = "";
     orderMsgPrev = "";
     receive_flag = false;
@@ -28,7 +28,7 @@ DataControl::DataControl(){
     desired_joint_position[1] = 0;
 
     DXL_Origin_Axis_1 = 0;
-    DXL_Down_Axis_2 = -61145;
+    DXL_Down_Axis_2 = -62045;
     DXL_Turn_Axis_1 = 131592;
     DXL_Up_Axis_2 = -125432;
     DXL_Block_Axis_2 = -65405;
@@ -84,4 +84,18 @@ void DataControl::dataReset()
     dropping = false;
     orderMsg = "";
     orderMsgPrev = "";
+    receive_flag = false;
+
+    IRR_Release_Pos_1 = 0;
+    IRR_Release_Pos_2 = 0;
+    IRR_Grip_Pos_1 = 3000;
+    IRR_Grip_Pos_2 = 3000;
+    IRR_Block_Pos_1 = 1700;
+    IRR_Block_Pos_2 = 1700;
+    IRR_Tar_Pos_1 = 0;
+    IRR_Tar_Pos_2 = 0;
+    IRR_Cur_Pos_1 = 0;
+    IRR_Cur_Pos_2 = 0;
+    IRR_Bfr_Pos_1 = 10000;
+    IRR_Bfr_Pos_2 = 10000;
 }

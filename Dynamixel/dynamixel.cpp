@@ -25,7 +25,12 @@ DxlControl::~DxlControl()
 }
 
 void DxlControl::start(){
-    pthread_create(&comm, nullptr, comm_func, this);
+    while(true){
+        init();
+        pthread_create(&comm, nullptr, comm_func, this);
+        pthread_join(comm, nullptr);
+        usleep(1000000);
+    }
 }
 
 void DxlControl::stop(){
@@ -35,14 +40,23 @@ void DxlControl::stop(){
 
 void* DxlControl::comm_func(void *arg){
     DxlControl* pThis = static_cast<DxlControl*>(arg);
-    pThis->comm_thread_run = true;
 
     pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Origin_Axis_1;
     pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Up_Axis_2;
+    pThis->comm_thread_run = true;
+
+    int status = 0;
 
     while(pThis->comm_thread_run){
-        pThis->setGroupSyncWriteGoalPosition(pThis->dataControl->desired_joint_position);
-        pThis->getGroupSyncReadIndirectAddress(pThis->dataControl->present_joint_position, pThis->dataControl->present_joint_velocity);
+        status = pThis->setGroupSyncWriteGoalPosition(pThis->dataControl->desired_joint_position);
+        status = pThis->getGroupSyncReadIndirectAddress(pThis->dataControl->present_joint_position, pThis->dataControl->present_joint_velocity);
+
+        if(status < 0){
+                pThis->portHandler->closePort();
+                printf("Closed port\n");
+                pThis->comm_thread_run = false;
+                pthread_exit(nullptr);
+        }
 
 //        cout << "Present Position 1 : " << pThis->dataControl->present_joint_position[0] << endl;
 //        cout << "Present Position 2 : " << pThis->dataControl->present_joint_position[1] << endl;
@@ -50,104 +64,6 @@ void* DxlControl::comm_func(void *arg){
 //        cout << "Present Velocity 2 : " << pThis->dataControl->present_joint_velocity[1] << endl;
 //        cout << "Desired Position 1 : " << pThis->dataControl->desired_joint_position[0] << endl;
 //        cout << "Desired Position 2 : " << pThis->dataControl->desired_joint_position[1] << endl;
-
-//        switch(pThis->dataControl->run_command){
-//            case DataControl::DxlCommand::run_init:
-//                switch (pThis->dataControl->run_step) {
-////                    cout << "move init" << endl;
-//                    case 0:
-//                        pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Origin_Axis_1;
-//                        pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Up_Axis_2;
-//                        break;
-//                    default:
-//                        break;
-//                }
-//                break;
-
-//            case DataControl::DxlCommand::run_down:
-//                switch(pThis->dataControl->run_step){
-//                    case 0:
-////                        cout << "move down 1" << endl;
-//                        pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Origin_Axis_1;
-//                        pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Down_Axis_2;
-//                        break;
-//                    default:
-//                        break;
-//                }
-//                break;
-
-//            case DataControl::DxlCommand::run_turn:
-//                switch(pThis->dataControl->run_step){
-//                    case 0:
-////                        cout << "move up 1" << endl;
-//                        pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Origin_Axis_1;
-//                        pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Up_Axis_2;
-//                        break;
-//                    case 1:
-////                        cout << "move turn 1" << endl;
-//                        pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Turn_Axis_1;
-//                        pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Up_Axis_2;
-//                        break;
-//                    case 2:
-////                        cout << "move down 2" << endl;
-//                        pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Turn_Axis_1;
-//                        pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Down_Axis_2;
-//                        break;
-//                    case 3:
-////                        cout << "move up 2" << endl;
-//                        pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Turn_Axis_1;
-//                        pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Up_Axis_2;
-//                        break;
-//                    case 4:
-////                        cout << "move turn 2" << endl;
-//                        pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Origin_Axis_1;
-//                        pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Up_Axis_2;
-//                        break;
-//                    default:
-//                        break;
-//                }
-//                break;
-
-//            case DataControl::DxlCommand::run_cancel:
-//                switch(pThis->dataControl->run_step){
-//                    case 0:
-////                        cout << "move cancel 1" << endl;
-//                        pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Up_Axis_2;
-//                        break;
-//                    case 1:
-////                        cout << "move cancel 2" << endl;
-//                        pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Origin_Axis_1;
-//                        pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Up_Axis_2;
-//                        break;
-//                    default:
-//                        break;
-//                }
-//                break;
-
-
-//            case DataControl::DxlCommand::run_block:
-//                switch(pThis->dataControl->run_step){
-//                    case 0:
-////                        cout << "move block 1" << endl;
-//                        pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Block_Axis_1;
-//                        pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Up_Axis_2;
-//                        break;
-//                    case 1:
-////                        cout << "move block 2" << endl;
-//                        pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Block_Axis_1;
-//                        pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Block_Axis_1;
-//                        break;
-//                    default:
-//                        break;
-//                }
-//                break;
-//            default: break;
-//        }
-
-//        if(abs(pThis->dataControl->present_joint_position[0] - pThis->dataControl->desired_joint_position[0]) < DXL_MOVING_STATUS_THRESHOLD &&
-//                abs(pThis->dataControl->present_joint_position[1] - pThis->dataControl->desired_joint_position[1]) < DXL_MOVING_STATUS_THRESHOLD){
-//            pThis->dataControl->run_step++;
-//        }
     }
 
     cout << "Finish Thread Flipper Dxl Module" << endl;
@@ -281,16 +197,6 @@ void DxlControl::dxl_init(uint8_t ID, uint8_t op_mode)
         return;
     }
 
-//    // Enable Dynamixel Torque
-//    dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, ID, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE, &dxl_error);
-//    if (dxl_comm_result != COMM_SUCCESS) {
-//        printf("[Torque Enable] %s\n", packetHandler->getTxRxResult(dxl_comm_result));
-//        return;
-//    }
-//    else if (dxl_error != 0) {
-//        printf("[Torque Enable] %s\n", packetHandler->getRxPacketError(dxl_error));
-//        return;
-//    }
     printf("Dynamixel(ID : %d) has been successfully connected\n", ID);
 }
 
@@ -379,7 +285,7 @@ void DxlControl::initGroupSyncReadIndirectAddress(uint8_t ID){
     }
 }
 
-void DxlControl::getGroupSyncReadIndirectAddress(int32_t *present_position, int32_t *present_velocity){
+int DxlControl::getGroupSyncReadIndirectAddress(int32_t *present_position, int32_t *present_velocity){
     // Syncread present data from indirectdata
     dynamixel::GroupSyncRead groupSyncRead(portHandler, packetHandler, ADDR_INDIRECTDATA_FOR_READ, LEN_INDIRECTADDRESS_FOR_READ);
 
@@ -391,13 +297,14 @@ void DxlControl::getGroupSyncReadIndirectAddress(int32_t *present_position, int3
         if (dxl_addparam_result != true)
         {
             printf("[ID:%03d] groupSyncRead add param failed", ID+1);
+            return -1;
         }
     }
 
     dxl_comm_result = groupSyncRead.txRxPacket();
     if (dxl_comm_result != COMM_SUCCESS) {
         printf("%s\n", packetHandler->getTxRxResult(dxl_comm_result));
-        return;
+        return -1;
     }
 
     for (uint8_t ID = 0; ID < 2; ID++){
@@ -407,6 +314,7 @@ void DxlControl::getGroupSyncReadIndirectAddress(int32_t *present_position, int3
         if (dxl_getdata_result != true)
         {
             fprintf(stderr, "[ID:%03d] groupSyncRead getdata failed\n", ID+1);
+            return -1;
         }
 
         // Check if groupsyncread data of Dyanamixel is available
@@ -414,6 +322,7 @@ void DxlControl::getGroupSyncReadIndirectAddress(int32_t *present_position, int3
         if (dxl_getdata_result != true)
         {
             fprintf(stderr, "[ID:%03d] groupSyncRead getdata failed\n", ID+1);
+            return -1;
         }
     }
 
@@ -426,9 +335,11 @@ void DxlControl::getGroupSyncReadIndirectAddress(int32_t *present_position, int3
     }
 
     groupSyncRead.clearParam();
+
+    return 0;
 }
 
-void DxlControl::setGroupSyncWriteGoalPosition(int32_t *goalPosition)
+int DxlControl::setGroupSyncWriteGoalPosition(int32_t *goalPosition)
 {
     dynamixel::GroupSyncWrite groupSyncWrite(portHandler, packetHandler, ADDR_PRO_GOAL_POSITION, LEN_GOAL_POSITION);
     bool dxl_addparam_result = false;	// addParam result
@@ -445,15 +356,19 @@ void DxlControl::setGroupSyncWriteGoalPosition(int32_t *goalPosition)
         if (dxl_addparam_result != true)
         {
             fprintf(stderr, "[ID:%03d] groupSyncWrite add param failed", i + 1);
-            return;
+            return -1;
         }
     }
 
     // Syncwrite goal position
     dxl_comm_result = groupSyncWrite.txPacket();
-    if (dxl_comm_result != COMM_SUCCESS)
+    if (dxl_comm_result != COMM_SUCCESS){
         printf("%s\n", packetHandler->getTxRxResult(dxl_comm_result));
+        return -1;
+    }
 
     // Clear syncwrite parameter storage
     groupSyncWrite.clearParam();
+
+    return 0;
 }

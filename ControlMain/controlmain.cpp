@@ -6,14 +6,13 @@ ControlMain::ControlMain()
 
     mainVM = new MainVisionModule(dataControl, 2097);
     usleep(10000);
+
     placeVM = new PlaceVisionModule(dataControl, 6666);
     usleep(10000);
 
-//    dxlControl = new DxlControl(dataControl);
-//    dxlControl->init();
+    dxlControl = new DxlControl(dataControl);
 
-//    irRobot = new IRRobot(dataControl);
-//    irRobot->init();
+    irRobot = new IRRobot(dataControl);
 
     conveyor = new Conveyor();
 
@@ -27,13 +26,119 @@ ControlMain::~ControlMain(){
     delete irRobot;
 }
 
+void* ControlMain::PVMstart(void *arg){
+    ControlMain *pThis = static_cast<ControlMain*>(arg);
+    pThis->placeVM->start();
+    while(true){
+    }
+}
+
+void* ControlMain::MVMstart(void *arg){
+    ControlMain *pThis = static_cast<ControlMain*>(arg);
+    pThis->mainVM->start();
+    while(true){
+    }
+}
+
+void* ControlMain::IRstart(void* arg){
+    ControlMain* pThis = static_cast<ControlMain*>(arg);
+    pThis->irRobot->start();
+    while(true){
+    }
+}
+
+void* ControlMain::DXLstart(void* arg){
+    ControlMain* pThis = static_cast<ControlMain*>(arg);
+    pThis->dxlControl->start();
+    while(true){
+    }
+}
+
 void ControlMain::start(){
-//    dxlControl->start();
-//    irRobot->start();
-    placeVM->start();
-    mainVM->start();
+    pthread_create(&DXL_thread, nullptr, DXLstart, this);
+    pthread_create(&IR_thread, nullptr, IRstart, this);
+    pthread_create(&PVM_thread, nullptr, PVMstart, this);
+    pthread_create(&MVM_thread, nullptr, MVMstart, this);
 
     pthread_create(&mainControlThread, nullptr, mainControl, this);
+}
+
+void* ControlMain::mainControl(void *arg){
+    ControlMain* pThis = static_cast<ControlMain*>(arg);
+
+    pThis->mainControlThreadRun = true;
+
+    while(pThis->mainControlThreadRun){
+        if(pThis->placeVM->isAlive() && pThis->mainVM->isAlive()){
+            if(pThis->dataControl->receive_flag){
+                if(pThis->dataControl->orderMsg.compare("repicking") == 0){
+                    if(pThis->dataControl->orderMsg.compare(pThis->dataControl->orderMsgPrev) != 0){
+                        cout << "=============== repicking ==============" << endl;
+                        pThis->dataControl->logger->write("=============== repicking ==============");
+                    }
+                }
+                if(pThis->dataControl->orderMsg.compare("drop") == 0){
+                    if(pThis->dataControl->orderMsg.compare(pThis->dataControl->orderMsgPrev) != 0){
+                        cout << "=============== drop ==============" << endl;
+                        pThis->dataControl->logger->write("=============== drop ==============");
+                    }
+                    pThis->dataControl->dropped = true;
+                    if(!pThis->dataControl->repicking_object){
+                        pThis->dataControl->dropping = false;
+                        if(!pThis->dataControl->device_operate){
+                            pThis->run_device();
+                        }
+                        pThis->dataControl->dropping = true;
+                    }
+                    pThis->dataControl->orderMsgPrev = pThis->dataControl->orderMsg;
+                }
+                if(pThis->dataControl->orderMsg.compare("repicked") == 0){
+                    if(pThis->dataControl->orderMsg.compare(pThis->dataControl->orderMsgPrev) != 0){
+                        cout << "=============== repicked ==============" << endl;
+                        pThis->dataControl->logger->write("=============== repicked ==============");
+                    }
+                    if(pThis->dataControl->dropped){
+                        pThis->dataControl->dropping = false;
+                        if(!pThis->dataControl->device_operate){
+                            pThis->run_device();
+                        }
+                        pThis->dataControl->dropping = true;
+                        pThis->dataControl->dropped = false;
+                    }
+                    pThis->dataControl->orderMsgPrev = pThis->dataControl->orderMsg;
+                }
+                pThis->dataControl->orderMsg = "";
+
+                pThis->dataControl->receive_flag = false;
+            }
+        }
+        else{
+//            pThis->dataControl->dataReset();
+        }
+    }
+
+    return nullptr;
+}
+
+void ControlMain::run_device(){
+    dataControl->device_operate = true;
+
+    if(dataControl->dropped){
+        run_block();
+        run_mover();
+        run_cancel();
+    }
+
+    do{
+        if(dataControl->state_state == 'T'){
+            run_turn();
+        }
+        else if(dataControl->state_state == 'O' || dataControl->state_state == 'N'){
+            run_cancel();
+        }
+    }while(dataControl->state_state == 'T');
+
+    dataControl->device_operate = false;
 }
 
 void ControlMain::stop(){
@@ -136,79 +241,6 @@ void ControlMain::run_mover(){
 
 void ControlMain::stop_mover(){
     conveyor->stop();
-}
-
-void* ControlMain::mainControl(void *arg){
-    ControlMain* pThis = static_cast<ControlMain*>(arg);
-
-    pThis->mainControlThreadRun = true;
-
-    while(pThis->mainControlThreadRun){
-        if(pThis->dataControl->receive_flag){
-            if(pThis->dataControl->orderMsg.compare("repicking") == 0){
-                if(pThis->dataControl->orderMsg.compare(pThis->dataControl->orderMsgPrev) != 0){
-                    cout << "=============== repicking ==============" << endl;
-                    pThis->dataControl->logger->write("=============== repicking ==============");
-                }
-            }
-            if(pThis->dataControl->orderMsg.compare("drop") == 0){
-                if(pThis->dataControl->orderMsg.compare(pThis->dataControl->orderMsgPrev) != 0){
-                    cout << "=============== drop ==============" << endl;
-                    pThis->dataControl->logger->write("=============== drop ==============");
-                }
-                pThis->dataControl->dropped = true;
-                if(!pThis->dataControl->repicking_object){
-                    pThis->dataControl->dropping = false;
-                    if(!pThis->dataControl->device_operate){
-//                        pThis->run_device();
-                    }
-                    pThis->dataControl->dropping = true;
-                }
-                pThis->dataControl->orderMsgPrev = pThis->dataControl->orderMsg;
-            }
-            if(pThis->dataControl->orderMsg.compare("repicked") == 0){
-                if(pThis->dataControl->orderMsg.compare(pThis->dataControl->orderMsgPrev) != 0){
-                    cout << "=============== repicked ==============" << endl;
-                    pThis->dataControl->logger->write("=============== repicked ==============");
-                }
-                if(pThis->dataControl->dropped){
-                    pThis->dataControl->dropping = false;
-                    if(!pThis->dataControl->device_operate){
-//                        pThis->run_device();
-                    }
-                    pThis->dataControl->dropping = true;
-                    pThis->dataControl->dropped = false;
-                }
-                pThis->dataControl->orderMsgPrev = pThis->dataControl->orderMsg;
-            }
-            pThis->dataControl->orderMsg = "";
-
-            pThis->dataControl->receive_flag = false;
-        }
-    }
-
-    return nullptr;
-}
-
-void ControlMain::run_device(){
-    dataControl->device_operate = true;
-
-    if(dataControl->dropped){
-        run_block();
-        run_mover();
-        run_cancel();
-    }
-
-    do{
-        if(dataControl->state_state == 'T'){
-            run_turn();
-        }
-        else if(dataControl->state_state == 'O' || dataControl->state_state == 'N'){
-            run_cancel();
-        }
-    }while(dataControl->state_state == 'T');
-
-    dataControl->device_operate = false;
 }
 
 void ControlMain::dxl_wait()

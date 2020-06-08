@@ -9,8 +9,6 @@ using namespace std;
 
 #include "Logger/logger.h"
 
-#include <QString>
-
 const int MAXCONNECTIONS = 5;
 const int MAXWAITBUFSIZE = 4096;
 const int MAXSENDBUFSIZE = 1024;
@@ -18,6 +16,8 @@ const int MAXRECEIVEBUFSIZE = 1024;
 
 const uint16_t IR_MOVING_STATUS_THRESHOLD = 10;
 const uint16_t IR_BLOCKING_STATUS_THRESHOLD = 20;
+const string TCP_ADDRESS = "192.168.0.123";
+const uint16_t DXL_MOVING_STATUS_THRESHOLD = 13000;
 
 class DataControl
 {
@@ -33,7 +33,7 @@ public:
     int i_r_x_offset, i_r_y_offset, i_r_rotation_offset;
 
     bool repicking_object, dropped, device_operate, dropping;
-    QString orderMsg, orderMsgPrev;
+    string orderMsg, orderMsgPrev;
 
     int16_t Axis1_TarPos, Axis2_TarPos, Axis1_CurPos, Axis2_CurPos;
 

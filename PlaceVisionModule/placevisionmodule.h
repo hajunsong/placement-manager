@@ -22,9 +22,9 @@ public:
 
     void start();
     void stop();
-    void restart();
     static void* comm_rx_func(void* arg);
     static void* comm_tx_func(void* arg);
+    bool isAlive(){return comm_thread_rx_run;}
 
 private:
     long sendByteLen;

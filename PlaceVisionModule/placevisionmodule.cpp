@@ -18,29 +18,34 @@ PlaceVisionModule::~PlaceVisionModule(){
 }
 
 void PlaceVisionModule::start(){
-    pthread_create(&comm_rx, nullptr, comm_rx_func, this);
+    listenSockFD = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(listenSockFD < 0){
+        cout << endl << "[PVM]socket create error" << endl;
+    }
+
+    int on = 1;
+    if(setsockopt(listenSockFD, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&on), sizeof(on)) < 0){
+        cout << endl << "[PVM]set option curLen = 0; error!!" << endl;
+    }
+
+    server_addr.sin_addr.s_addr = inet_addr(TCP_ADDRESS.c_str());
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+
+    if(bind(listenSockFD, reinterpret_cast<struct sockaddr*>(&server_addr), sizeof(server_addr)) < 0){
+        cout << endl << "[PVM]bind error" << endl;
+    }
+
+    while(true){
+        pthread_create(&comm_rx, nullptr, comm_rx_func, this);
+        pthread_join(comm_rx, nullptr);
+        usleep(1000000);
+    }
 }
 
 void *PlaceVisionModule::comm_rx_func(void *arg)
 {
     PlaceVisionModule* pThis = static_cast<PlaceVisionModule*>(arg);
-    pThis->listenSockFD = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(pThis->listenSockFD < 0){
-        cout << endl << "[PVM]socket create error" << endl;
-    }
-
-    int on = 1;
-    if(setsockopt(pThis->listenSockFD, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&on), sizeof(on)) < 0){
-        cout << endl << "[PVM]set option curLen = 0; error!!" << endl;
-    }
-
-    pThis->server_addr.sin_addr.s_addr = inet_addr("192.168.0.123");
-    pThis->server_addr.sin_family = AF_INET;
-    pThis->server_addr.sin_port = htons(pThis->port);
-
-    if(bind(pThis->listenSockFD, reinterpret_cast<struct sockaddr*>(&pThis->server_addr), sizeof(server_addr)) < 0){
-        cout << endl << "[PVM]bind error" << endl;
-    }
 
     cout << "[PVM]server running waiting. Waiting client..." << endl;
 
@@ -65,28 +70,18 @@ void *PlaceVisionModule::comm_rx_func(void *arg)
 
     pThis->sendByteLen = send(pThis->clientSockFD, pThis->bufSend, sizeof(bufSend), 0);
 
-//    pthread_create(&pThis->comm_tx, nullptr, comm_tx_func, pThis);
-
     pThis->comm_thread_rx_run = true;
-    // int cnt = 0;
 
     while(pThis->comm_thread_rx_run){
-//        pThis->sendByteLen = send(pThis->clientSockFD, pThis->bufSend, sizeof(bufSend), 0);
-
-//        if(pThis->sendByteLen < 0){
-//            cout << endl << "[PVM]Send Error" << endl;
-//            pThis->dataControl->logger->write("[PVM]Send Error");
-//            break;
-//        }
-        usleep(100000);
+        usleep(100);
 
         memset(pThis->buf, 0, MAXRECEIVEBUFSIZE);
         pThis->byteLen = recv(pThis->clientSockFD, pThis->buf, 47, 0);
 
         if(pThis->byteLen == 0 || pThis->byteLen > MAXRECEIVEBUFSIZE){
             cout << endl << "[PVM]client" << inet_ntoa(pThis->client_addr.sin_addr) << "closed." << endl;
-//            close(pThis->clientSockFD);
-            break;
+            shutdown(pThis->clientSockFD, SHUT_RDWR);
+            pthread_exit(nullptr);
         }
         if(pThis->byteLen > 0){
 //            cout << pThis->buf << endl;
@@ -146,19 +141,14 @@ void *PlaceVisionModule::comm_rx_func(void *arg)
             pThis->dataControl->i_r_rotation_offset = atoi(dataBuf);
             pThis->dataControl->r_rotation_offset = (-1)*static_cast<double>(pThis->dataControl->i_r_rotation_offset);
 
-//            if(cnt++ % 10 == 0){
-//                printf("\n");
-//                printf("[offset]x:=%.3f\t y:=%.3f\t r:=%.3f\n", pThis->dataControl->x_offset, pThis->dataControl->y_offset, pThis->dataControl->rotation_offset);
-//                printf("repicking object : %s\n", pThis->dataControl->repicking_object == true ? "true" : "false");
-//                printf("[r_offset]x:=%3.4f\t y:=%3.4f\t r:=%3.4f\n", pThis->dataControl->r_x_offset, pThis->dataControl->r_y_offset, pThis->dataControl->r_rotation_offset);
-//            }
+            printf("\n");
+            printf("[offset]x:=%.3f\t y:=%.3f\t r:=%.3f\n", pThis->dataControl->x_offset, pThis->dataControl->y_offset, pThis->dataControl->rotation_offset);
+            printf("repicking object : %s\n", pThis->dataControl->repicking_object == true ? "true" : "false");
+//            printf("[r_offset]x:=%3.4f\t y:=%3.4f\t r:=%3.4f\n", pThis->dataControl->r_x_offset, pThis->dataControl->r_y_offset, pThis->dataControl->r_rotation_offset);
 
-            pThis->dataControl->logger->write("[offset] x:=" + QString::number(pThis->dataControl->x_offset).toStdString() +
-                                              ",y:=" + QString::number(pThis->dataControl->y_offset).toStdString() +
-                                              ",z:=" + QString::number(pThis->dataControl->rotation_offset).toStdString());
-            pThis->dataControl->logger->write("repicking object : " + QString::number(pThis->dataControl->repicking_object).toStdString());
-
-//            pThis->sendByteLen = send(pThis->clientSockFD, pThis->bufSend, sizeof(bufSend), 0);
+            pThis->dataControl->logger->write("[offset] x:=" + to_string(pThis->dataControl->x_offset) +
+                                              ",y:=" + to_string(pThis->dataControl->y_offset) + ",z:=" + to_string(pThis->dataControl->rotation_offset));
+            pThis->dataControl->logger->write("repicking object : " + to_string(pThis->dataControl->repicking_object));
         }
     }
     cout << "Finish Thread Place Vision Module" << endl;
@@ -171,23 +161,13 @@ void *PlaceVisionModule::comm_tx_func(void *arg)
     PlaceVisionModule* pThis = static_cast<PlaceVisionModule*>(arg);
     pThis->comm_thread_tx_run = true;
 
-//    while(pThis->comm_thread_tx_run){
-//        pThis->sendByteLen = send(pThis->clientSockFD, pThis->bufSend, sizeof(pThis->bufSend), 0);
-//    }
     return nullptr;
 }
 
 void PlaceVisionModule::stop(){
     cout << "Stop Place Vision Module Comm" << endl;
-    close(clientSockFD);
     comm_thread_rx_run = false;
     comm_thread_tx_run = false;
     pthread_join(comm_rx, nullptr);
     pthread_join(comm_tx, nullptr);
-}
-
-void PlaceVisionModule::restart(){
-    cout << "Restart Place Vison Module Comm" << endl;
-    stop();
-    start();
 }

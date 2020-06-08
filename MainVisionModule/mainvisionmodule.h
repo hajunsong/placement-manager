@@ -1,11 +1,6 @@
 #ifndef MAINVISIOINMODULE_H
 #define MAINVISIOINMODULE_H
 
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QtDebug>
-
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -14,10 +9,16 @@
 #include <iostream>
 #include <math.h>
 #include <time.h>
+#include <sstream>
 
 #include "DataControl/datacontrol.h"
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+
 using namespace std;
+using namespace rapidjson;
 
 class MainVisionModule
 {
@@ -27,13 +28,13 @@ public:
 
     void start();
     void stop();
-    void restart();
     static void* comm_rx_func(void* arg);
     static void* comm_tx_func(void* arg);
+    bool isAlive(){return comm_thread_rx_run;}
 
 private:
     long sendByteLen;
-    long byteLen;
+    long byteLen, len;
     unsigned int curLen;
     int listenSockFD;
     int clientSockFD;
@@ -48,13 +49,14 @@ private:
 
     pthread_t comm_tx, comm_rx;
 
-    QJsonObject jsonObjRecv;
-    QString orderMsg;
+    Document jsonDocument;
+    string orderMsg;
 
     sockaddr_in server_addr, client_addr;
     bool comm_thread_rx_run, comm_thread_tx_run;
 
     uint16_t port;
+    string msg;
 };
 
 #endif // MAINVISIOINMODULE_H

@@ -44,11 +44,10 @@ const uint8_t DX_ID_Axis1 = 1;
 const uint8_t DX_ID_Axis2 = 2;
 
 const uint32_t BAUDRATE = 57600;
-const string DEVICENAME = "/dev/ttyUSB0";
+const string DEVICENAME = "/dev/ttyU2D2";
 
 const uint8_t TORQUE_ENABLE = 1;
 const uint8_t TORQUE_DISABLE = 0;
-const uint16_t DXL_MOVING_STATUS_THRESHOLD = 13000;
 
 class DxlControl{
 public:
@@ -82,9 +81,9 @@ private:
     void setTorqueEnable(uint8_t ID, uint8_t enable);
 
     void initGroupSyncReadIndirectAddress(uint8_t ID);
-    void getGroupSyncReadIndirectAddress(int32_t *present_position, int32_t *present_velocity);
+    int getGroupSyncReadIndirectAddress(int32_t *present_position, int32_t *present_velocity);
 
-    void setGroupSyncWriteGoalPosition(int32_t *goalPosition);
+    int setGroupSyncWriteGoalPosition(int32_t *goalPosition);
 };
 
 #endif // DYNAMIXELLIB_H

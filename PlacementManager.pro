@@ -30,7 +30,7 @@ SOURCES += main.cpp \
     Logger/logger.cpp \
 
 
-LIBS += -L$$PWD/Dynamixel/ -ldxl_sbc_cpp
+LIBS += -L$$PWD/Dynamixel/ -ldxl_x64_cpp
 
 INCLUDEPATH += $$PWD/Dynamixel
 DEPENDPATH += $$PWD/Dynamixel
@@ -39,3 +39,5 @@ LIBS += -L$$PWD/Conveyor/libljacklm/ -lljacklm
 
 INCLUDEPATH += $$PWD/Conveyor/libljacklm
 DEPENDPATH += $$PWD/Conveyor/libljacklm
+
+INCLUDEPATH += $$PWD/include

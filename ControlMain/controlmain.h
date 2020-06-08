@@ -27,6 +27,10 @@ public:
     void run_mover();
     void stop_mover();
     static void* mainControl(void* arg);
+    static void* PVMstart(void* arg);
+    static void* MVMstart(void* arg);
+    static void* IRstart(void* arg);
+    static void* DXLstart(void* arg);
 
 private:
     DataControl *dataControl;
@@ -36,7 +40,7 @@ private:
     IRRobot *irRobot;
     Conveyor *conveyor;
 
-    pthread_t mainControlThread;
+    pthread_t mainControlThread, MVM_thread, PVM_thread, IR_thread, DXL_thread;
     bool mainControlThreadRun;
     void run_device();
     void dxl_wait();

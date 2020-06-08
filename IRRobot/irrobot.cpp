@@ -40,7 +40,12 @@ void IRRobot::init()
 
 void IRRobot::start()
 {
-    pthread_create(&comm, nullptr, comm_func, this);
+    while(true){
+        init();
+        pthread_create(&comm, nullptr, comm_func, this);
+        pthread_join(comm, nullptr);
+        usleep(1000000);
+    }
 }
 
 void IRRobot::stop()
@@ -63,14 +68,17 @@ void* IRRobot::comm_func(void* arg){
             pThis->getPresentPosition(1);
             pThis->getPresentPosition(4);
 
-    //        cout << "Present Position 1 : " << pThis->dataControl->IRR_Cur_Pos_1 << endl;
-    //        cout << "Present Position 2 : " << pThis->dataControl->IRR_Cur_Pos_2 << endl;
+//            cout << "Present Position 1 : " << pThis->dataControl->IRR_Cur_Pos_1 << endl;
+//            cout << "Present Position 2 : " << pThis->dataControl->IRR_Cur_Pos_2 << endl;
+//            cout << "Desired Position 1 : " << pThis->dataControl->IRR_Tar_Pos_1 << endl;
+//            cout << "Desired Position 2 : " << pThis->dataControl->IRR_Tar_Pos_2 << endl;
         } catch (...) {
             cout << "Error occured in serial comm. Try reconnect..." << endl;
             pThis->dataControl->logger->write("Error occured in serial comm. Try reconnect...");
             pThis->stateConnect = false;
             pThis->serial->Close();
-            pThis->init();
+            pThis->comm_thread_run = false;
+            pthread_exit(nullptr);
         }
     }
 
