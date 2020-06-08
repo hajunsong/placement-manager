@@ -14,7 +14,7 @@
 class ControlMain
 {
 public:
-    ControlMain();
+    ControlMain(void* arg);
     ~ControlMain();
     void start();
     void stop();

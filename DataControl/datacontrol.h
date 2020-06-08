@@ -16,7 +16,7 @@ const int MAXRECEIVEBUFSIZE = 1024;
 
 const uint16_t IR_MOVING_STATUS_THRESHOLD = 10;
 const uint16_t IR_BLOCKING_STATUS_THRESHOLD = 20;
-const string TCP_ADDRESS = "192.168.0.123";
+// const string TCP_ADDRESS = "192.168.0.123";
 const uint16_t DXL_MOVING_STATUS_THRESHOLD = 13000;
 
 class DataControl
@@ -25,6 +25,9 @@ public:
     DataControl();
     ~DataControl();
     void dataReset();
+
+    string TCP_ADDRESS;
+    int MAIN_VISION_PORT, PLACE_VISION_PORT;
 
     char state_state, r_state_state;
     double x_offset, y_offset, rotation_offset;

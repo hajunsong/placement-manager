@@ -26,7 +26,7 @@ void MainVisionModule::start(){
         cout << endl << "[MVM]set option curLen = 0; error!!" << endl;
     }
 
-    server_addr.sin_addr.s_addr = inet_addr(TCP_ADDRESS.c_str());
+    server_addr.sin_addr.s_addr = inet_addr(dataControl->TCP_ADDRESS.c_str());
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
 

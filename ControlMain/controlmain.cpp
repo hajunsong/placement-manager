@@ -1,13 +1,13 @@
 #include "controlmain.h"
 
-ControlMain::ControlMain()
+ControlMain::ControlMain(void *arg)
 {
-    dataControl = new DataControl();
+    dataControl = static_cast<DataControl*>(arg);
 
-    mainVM = new MainVisionModule(dataControl, 2097);
+    mainVM = new MainVisionModule(dataControl, dataControl->MAIN_VISION_PORT);
     usleep(10000);
 
-    placeVM = new PlaceVisionModule(dataControl, 6666);
+    placeVM = new PlaceVisionModule(dataControl, dataControl->PLACE_VISION_PORT);
     usleep(10000);
 
     dxlControl = new DxlControl(dataControl);
