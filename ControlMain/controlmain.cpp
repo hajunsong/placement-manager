@@ -66,6 +66,7 @@ void ControlMain::start(){
 void* ControlMain::mainControl(void *arg){
     ControlMain* pThis = static_cast<ControlMain*>(arg);
 
+    pThis->dataControl->dropping = true;
     pThis->mainControlThreadRun = true;
 
     while(pThis->mainControlThreadRun){
