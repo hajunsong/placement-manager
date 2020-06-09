@@ -33,9 +33,6 @@ int main()
     dataControl->IRR_Block_Pos_1 = document["IRR_Block_Pos"].GetInt();
     dataControl->IRR_Block_Pos_2 = document["IRR_Block_Pos"].GetInt();
     dataControl->TCP_ADDRESS = document["TCP_ADDRESS"].GetString();
-    dataControl->TCP_ADDRESS.replace(3, 1, ".");
-    dataControl->TCP_ADDRESS.replace(7, 1, ".");
-    dataControl->TCP_ADDRESS.replace(11, 1, ".");
     dataControl->MAIN_VISION_PORT = document["MAIN_VISION_PORT"].GetInt();
     dataControl->PLACE_VISION_PORT = document["PLACE_VISION_PORT"].GetInt();
 

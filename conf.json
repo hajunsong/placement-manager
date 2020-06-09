@@ -1,5 +1,5 @@
 {
-    "TCP_ADDRESS" : "192-168-000-123",
+    "TCP_ADDRESS" : "192.168.0.123",
     "MAIN_VISION_PORT" : 2097,
     "PLACE_VISION_PORT" : 6666,
     "DXL_Origin_Axis_1" : 0,

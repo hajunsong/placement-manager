@@ -1,4 +1,6 @@
 build/
+ljacklm_*.zip
 ljacklm_*/
 exodriver/
 DynamixelSDK/
+.vscode/
