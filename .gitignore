@@ -1,1 +1,4 @@
 build/
+ljacklm_*/
+exodriver/
+DynamixelSDK/
