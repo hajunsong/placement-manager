@@ -6,6 +6,9 @@ DxlControl::DxlControl(void *arg)
     dxl_error = 0;
     init_flag = false;
     dataControl = static_cast<DataControl*>(arg);
+
+    portHandler = dynamixel::PortHandler::getPortHandler("/dev/ttyDXL");
+    packetHandler = dynamixel::PacketHandler::getPacketHandler(PROTOCOL_VERSION);
 }
 
 DxlControl::~DxlControl()
@@ -30,6 +33,15 @@ void DxlControl::start(){
         pthread_create(&comm, nullptr, comm_func, this);
         pthread_join(comm, nullptr);
         usleep(1000000);
+
+        string device_name = device + to_string(ttyusb++);
+        cout << "Try : " << device_name << endl;
+        portHandler = dynamixel::PortHandler::getPortHandler(device_name.c_str());
+        packetHandler = dynamixel::PacketHandler::getPacketHandler(PROTOCOL_VERSION);
+        if (ttyusb > 5)
+        {
+            ttyusb = 0;
+        }
     }
 }
 
@@ -52,10 +64,10 @@ void* DxlControl::comm_func(void *arg){
         status = pThis->getGroupSyncReadIndirectAddress(pThis->dataControl->present_joint_position, pThis->dataControl->present_joint_velocity);
 
         if(status < 0){
-                pThis->portHandler->closePort();
-                printf("Closed port\n");
-                pThis->comm_thread_run = false;
-                pthread_exit(nullptr);
+            pThis->portHandler->closePort();
+            printf("Closed port\n");
+            pThis->comm_thread_run = false;
+            pthread_exit(nullptr);
         }
 
 //        cout << "Present Position 1 : " << pThis->dataControl->present_joint_position[0] << endl;
@@ -72,9 +84,6 @@ void* DxlControl::comm_func(void *arg){
 }
 
 void DxlControl::init(){
-
-    portHandler = dynamixel::PortHandler::getPortHandler(DEVICENAME.c_str());
-    packetHandler = dynamixel::PacketHandler::getPacketHandler(PROTOCOL_VERSION);
 
     if (portHandler->openPort()) {
         printf("Succeeded to open the port!\n");

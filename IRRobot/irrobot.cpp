@@ -4,7 +4,9 @@ IRRobot::IRRobot(void *arg)
 {
     dataControl = static_cast<DataControl*>(arg);
 
-    serial = new SerialPort("/dev/ttyUSB1", BaudRate::B_115200);
+    serial = new SerialPort();
+    serial->SetBaudRate(BaudRate::B_115200);
+    serial->SetDevice("/dev/ttyIR");
 
     head[0] = 0xff;
     head[1] = 0xff;
@@ -32,6 +34,13 @@ void IRRobot::init()
         } catch (...) {
             cout << "Error occured in serial comm. Re try connect..." << endl;
             dataControl->logger->write("Error occured in serial comm. Re try connect...");
+            
+            string device_name = device + to_string(ttyusb++);
+            serial->SetDevice(device_name);
+            if(ttyusb > 5){
+                ttyusb = 0;
+            }
+            
             stateConnect = false;
             usleep(1000000);
         }

@@ -87,7 +87,7 @@ void* ControlMain::mainControl(void *arg){
                     if(!pThis->dataControl->repicking_object){
                         pThis->dataControl->dropping = false;
                         if(!pThis->dataControl->device_operate){
-                            pThis->run_device();
+                            pThis->run_device(); // flipper 동작 함수
                         }
                         pThis->dataControl->dropping = true;
                     }
@@ -101,7 +101,7 @@ void* ControlMain::mainControl(void *arg){
                     if(pThis->dataControl->dropped){
                         pThis->dataControl->dropping = false;
                         if(!pThis->dataControl->device_operate){
-                            pThis->run_device();
+                            pThis->run_device(); // flipper 동작 함수
                         }
                         pThis->dataControl->dropping = true;
                         pThis->dataControl->dropped = false;
