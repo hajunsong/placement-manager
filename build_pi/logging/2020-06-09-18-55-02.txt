@@ -1,0 +1,40 @@
+2020-06-09-18-55-02	=============== Application Start ==============
+2020-06-09-18-55-03	dxl wait start
+2020-06-09-18-55-03	dxl wait finish
+2020-06-09-18-55-03	grip wait start
+2020-06-09-18-55-03	grip wait finish
+2020-06-09-18-55-03	dxl wait start
+2020-06-09-18-55-04	dxl wait finish
+2020-06-09-18-55-04	dxl wait start
+2020-06-09-18-55-05	dxl wait finish
+2020-06-09-18-55-05	dxl wait start
+2020-06-09-18-55-06	dxl wait finish
+2020-06-09-18-55-06	grip wait start
+2020-06-09-18-55-06	grip wait finish
+2020-06-09-18-55-06	dxl wait start
+2020-06-09-18-55-07	dxl wait finish
+2020-06-09-18-55-07	dxl wait start
+2020-06-09-18-55-07	[offset] x:=0.000000,y:=0.000000,z:=-0.000000
+2020-06-09-18-55-07	repicking object : 0
+2020-06-09-18-55-07	[offset] x:=0.000000,y:=0.000000,z:=-0.000000
+2020-06-09-18-55-07	repicking object : 0
+2020-06-09-18-55-07	[offset] x:=0.000000,y:=0.000000,z:=-0.000000
+2020-06-09-18-55-07	repicking object : 0
+2020-06-09-18-55-08	[offset] x:=0.000000,y:=0.000000,z:=-0.000000
+2020-06-09-18-55-08	repicking object : 0
+2020-06-09-18-55-08	dxl wait finish
+2020-06-09-18-55-08	dxl wait start
+2020-06-09-18-55-08	[offset] x:=0.000000,y:=0.000000,z:=-0.000000
+2020-06-09-18-55-08	repicking object : 0
+2020-06-09-18-55-08	[offset] x:=0.000000,y:=0.000000,z:=-0.000000
+2020-06-09-18-55-08	repicking object : 0
+2020-06-09-18-55-08	dxl wait finish
+2020-06-09-18-55-08	grip wait start
+2020-06-09-18-55-08	grip wait finish
+2020-06-09-18-55-08	dxl wait start
+2020-06-09-18-55-09	[offset] x:=0.000000,y:=0.000000,z:=-0.000000
+2020-06-09-18-55-09	repicking object : 0
+2020-06-09-18-55-09	[offset] x:=0.000000,y:=0.000000,z:=-0.000000
+2020-06-09-18-55-09	repicking object : 0
+2020-06-09-18-55-09	dxl wait finish
+2020-06-09-18-55-09	dxl wait start

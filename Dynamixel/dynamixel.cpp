@@ -6,6 +6,10 @@ DxlControl::DxlControl(void *arg)
     dxl_error = 0;
     init_flag = false;
     dataControl = static_cast<DataControl*>(arg);
+
+    cout << "Try : /dev/ttyDXL" << endl;
+    portHandler = dynamixel::PortHandler::getPortHandler("/dev/ttyDXL");
+    packetHandler = dynamixel::PacketHandler::getPacketHandler(PROTOCOL_VERSION);
 }
 
 DxlControl::~DxlControl()
@@ -30,6 +34,15 @@ void DxlControl::start(){
         pthread_create(&comm, nullptr, comm_func, this);
         pthread_join(comm, nullptr);
         usleep(1000000);
+
+        string device_name = device + to_string(ttyusb++);
+        cout << "Try : " << device_name << endl;
+        portHandler = dynamixel::PortHandler::getPortHandler(device_name.c_str());
+        packetHandler = dynamixel::PacketHandler::getPacketHandler(PROTOCOL_VERSION);
+        if (ttyusb > 5)
+        {
+            ttyusb = 0;
+        }
     }
 }
 
@@ -41,8 +54,9 @@ void DxlControl::stop(){
 void* DxlControl::comm_func(void *arg){
     DxlControl* pThis = static_cast<DxlControl*>(arg);
 
-    pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Origin_Axis_1;
-    pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Up_Axis_2;
+    pThis->getGroupSyncReadIndirectAddress(pThis->dataControl->present_joint_position, pThis->dataControl->present_joint_velocity);
+    pThis->dataControl->desired_joint_position[0] = pThis->dataControl->present_joint_position[0];
+    pThis->dataControl->desired_joint_position[1] = pThis->dataControl->present_joint_position[1];
     pThis->comm_thread_run = true;
 
     int status = 0;
@@ -52,18 +66,18 @@ void* DxlControl::comm_func(void *arg){
         status = pThis->getGroupSyncReadIndirectAddress(pThis->dataControl->present_joint_position, pThis->dataControl->present_joint_velocity);
 
         if(status < 0){
-                pThis->portHandler->closePort();
-                printf("Closed port\n");
-                pThis->comm_thread_run = false;
-                pthread_exit(nullptr);
+            pThis->portHandler->closePort();
+            printf("Closed port\n");
+            pThis->comm_thread_run = false;
+            pthread_exit(nullptr);
         }
 
-//        cout << "Present Position 1 : " << pThis->dataControl->present_joint_position[0] << endl;
-//        cout << "Present Position 2 : " << pThis->dataControl->present_joint_position[1] << endl;
-//        cout << "Present Velocity 1 : " << pThis->dataControl->present_joint_velocity[0] << endl;
-//        cout << "Present Velocity 2 : " << pThis->dataControl->present_joint_velocity[1] << endl;
-//        cout << "Desired Position 1 : " << pThis->dataControl->desired_joint_position[0] << endl;
-//        cout << "Desired Position 2 : " << pThis->dataControl->desired_joint_position[1] << endl;
+    //    cout << "Present Position 1 : " << pThis->dataControl->present_joint_position[0] << endl;
+    //    cout << "Present Position 2 : " << pThis->dataControl->present_joint_position[1] << endl;
+    //    cout << "Present Velocity 1 : " << pThis->dataControl->present_joint_velocity[0] << endl;
+    //    cout << "Present Velocity 2 : " << pThis->dataControl->present_joint_velocity[1] << endl;
+    //    cout << "Desired Position 1 : " << pThis->dataControl->desired_joint_position[0] << endl;
+    //    cout << "Desired Position 2 : " << pThis->dataControl->desired_joint_position[1] << endl;
     }
 
     cout << "Finish Thread Flipper Dxl Module" << endl;
@@ -72,9 +86,6 @@ void* DxlControl::comm_func(void *arg){
 }
 
 void DxlControl::init(){
-
-    portHandler = dynamixel::PortHandler::getPortHandler(DEVICENAME.c_str());
-    packetHandler = dynamixel::PacketHandler::getPacketHandler(PROTOCOL_VERSION);
 
     if (portHandler->openPort()) {
         printf("Succeeded to open the port!\n");

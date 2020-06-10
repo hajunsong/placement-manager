@@ -44,7 +44,7 @@ const uint8_t DX_ID_Axis1 = 1;
 const uint8_t DX_ID_Axis2 = 2;
 
 const uint32_t BAUDRATE = 57600;
-const string DEVICENAME = "/dev/ttyU2D2";
+// const string DEVICENAME = "/dev/ttyUSB0";
 
 const uint8_t TORQUE_ENABLE = 1;
 const uint8_t TORQUE_DISABLE = 0;
@@ -58,6 +58,7 @@ public:
     void start();
     void stop();
     static void* comm_func(void* arg);
+    bool isAlive(){return comm_thread_run;}
 
 private:
     DataControl *dataControl;
@@ -84,6 +85,9 @@ private:
     int getGroupSyncReadIndirectAddress(int32_t *present_position, int32_t *present_velocity);
 
     int setGroupSyncWriteGoalPosition(int32_t *goalPosition);
+
+    int ttyusb = 0;
+    string device = "/dev/ttyUSB";
 };
 
 #endif // DYNAMIXELLIB_H

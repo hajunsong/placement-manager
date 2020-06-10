@@ -9,6 +9,8 @@
 ***
 
 ### 1. Dynamixel SDK Download & Install
+[DynamixelSDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/download/)
+[DynamixelSDK Protocol 2.0](https://emanual.robotis.com/docs/en/dxl/protocol2/)
 ~~~
 $ git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git
 $ cd DynamixelSDK/c++/build/linux64

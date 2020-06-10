@@ -1,0 +1,8 @@
+2020-06-09-19-35-54	=============== Application Start ==============
+2020-06-09-19-35-55	dxl wait start
+2020-06-09-19-35-55	dxl wait finish
+2020-06-09-19-35-55	dxl wait start
+2020-06-09-19-35-55	dxl wait finish
+2020-06-09-19-35-55	dxl wait start
+2020-06-09-19-35-56	dxl wait finish
+2020-06-09-19-35-56	grip wait start

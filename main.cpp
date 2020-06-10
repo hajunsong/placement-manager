@@ -35,6 +35,9 @@ int main()
     dataControl->TCP_ADDRESS = document["TCP_ADDRESS"].GetString();
     dataControl->MAIN_VISION_PORT = document["MAIN_VISION_PORT"].GetInt();
     dataControl->PLACE_VISION_PORT = document["PLACE_VISION_PORT"].GetInt();
+    dataControl->IR_MOVING_STATUS_THRESHOLD = document["IR_MOVING_STATUS_THRESHOLD"].GetInt();
+    dataControl->IR_BLOCKING_STATUS_THRESHOLD = document["IR_BLOCKING_STATUS_THRESHOLD"].GetInt();
+    dataControl->DXL_MOVING_STATUS_THRESHOLD = document["DXL_MOVING_STATUS_THRESHOLD"].GetInt();
 
     controlMain = new ControlMain(dataControl);
     controlMain->start();

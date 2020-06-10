@@ -1,0 +1,10 @@
+2020-06-09-19-31-48	=============== Application Start ==============
+2020-06-09-19-31-49	dxl wait start
+2020-06-09-19-31-49	dxl wait finish
+2020-06-09-19-31-49	dxl wait start
+2020-06-09-19-31-49	dxl wait finish
+2020-06-09-19-31-49	dxl wait start
+2020-06-09-19-31-49	dxl wait finish
+2020-06-09-19-31-49	grip wait start
+2020-06-09-19-31-52	[offset] x:=14.616000,y:=21.542000,z:=-1.000000
+2020-06-09-19-31-52	repicking object : 0

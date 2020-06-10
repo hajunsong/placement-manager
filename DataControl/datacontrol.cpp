@@ -1,6 +1,10 @@
 #include "datacontrol.h"
 
 DataControl::DataControl(){
+    TCP_ADDRESS = "192.168.0.123";
+    MAIN_VISION_PORT = 2097;
+    PLACE_VISION_PORT = 6666;
+    
     state_state = 0;
     r_state_state = 0;
     x_offset = 0;
@@ -96,6 +100,6 @@ void DataControl::dataReset()
     IRR_Tar_Pos_2 = 0;
     IRR_Cur_Pos_1 = 0;
     IRR_Cur_Pos_2 = 0;
-    IRR_Bfr_Pos_1 = 10000;
-    IRR_Bfr_Pos_2 = 10000;
+    IRR_Bfr_Pos_1 = 0;
+    IRR_Bfr_Pos_2 = 0;
 }

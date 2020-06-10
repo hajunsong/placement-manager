@@ -34,4 +34,4 @@ set(SOURCE
 )
 
 add_executable(${PROJECT_NAME} ${HEADER} ${SOURCE})
-target_link_libraries(${PROJECT_NAME} dxl_x64_cpp pthread ljacklm)
+target_link_libraries(${PROJECT_NAME} dxl_sbc_cpp pthread ljacklm)

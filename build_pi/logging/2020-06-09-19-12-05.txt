@@ -1,0 +1,10 @@
+2020-06-09-19-12-05	=============== Application Start ==============
+2020-06-09-19-12-05	dxl wait start
+2020-06-09-19-12-05	dxl wait finish
+2020-06-09-19-12-05	dxl wait start
+2020-06-09-19-12-05	dxl wait finish
+2020-06-09-19-12-05	dxl wait start
+2020-06-09-19-12-06	dxl wait finish
+2020-06-09-19-12-06	grip wait start
+2020-06-09-19-12-07	[offset] x:=0.000000,y:=0.000000,z:=-0.000000
+2020-06-09-19-12-07	repicking object : 0

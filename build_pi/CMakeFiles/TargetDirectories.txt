@@ -1,0 +1,3 @@
+/home/pi/Project/placement-manager/build_pi/CMakeFiles/rebuild_cache.dir
+/home/pi/Project/placement-manager/build_pi/CMakeFiles/placement_manager.dir
+/home/pi/Project/placement-manager/build_pi/CMakeFiles/edit_cache.dir

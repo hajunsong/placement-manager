@@ -14,10 +14,10 @@ const int MAXWAITBUFSIZE = 4096;
 const int MAXSENDBUFSIZE = 1024;
 const int MAXRECEIVEBUFSIZE = 1024;
 
-const uint16_t IR_MOVING_STATUS_THRESHOLD = 10;
-const uint16_t IR_BLOCKING_STATUS_THRESHOLD = 20;
-// const string TCP_ADDRESS = "192.168.0.123";
-const uint16_t DXL_MOVING_STATUS_THRESHOLD = 13000;
+// const uint16_t IR_MOVING_STATUS_THRESHOLD = 10;
+// const uint16_t IR_BLOCKING_STATUS_THRESHOLD = 10;
+// // const string TCP_ADDRESS = "192.168.0.123";
+// const uint16_t DXL_MOVING_STATUS_THRESHOLD = 13000;
 
 class DataControl
 {
@@ -46,6 +46,8 @@ public:
 
     int16_t IRR_Release_Pos_1, IRR_Release_Pos_2, IRR_Grip_Pos_1, IRR_Grip_Pos_2, IRR_Cur_Pos_1, IRR_Cur_Pos_2;
     int16_t IRR_Tar_Pos_1, IRR_Tar_Pos_2, IRR_Block_Pos_1, IRR_Block_Pos_2, IRR_Bfr_Pos_1, IRR_Bfr_Pos_2;
+
+    uint16_t IR_MOVING_STATUS_THRESHOLD, IR_BLOCKING_STATUS_THRESHOLD, DXL_MOVING_STATUS_THRESHOLD;
 
     Logger *logger;
 

@@ -29,6 +29,7 @@ public:
     void setMotonOffDual();
     void setMotonOff(char id);
     void getPresentPosition(char id);
+    bool isAlive(){return comm_thread_run;}
 
 private:
     DataControl *dataControl;
@@ -41,7 +42,8 @@ private:
     bool comm_thread_run;
 
     unsigned char head[3], id, size, command, address, data[3], checksum, length, data1[3], data2[3], id1, id2;
-
+    int ttyusb = 0;
+    string device = "/dev/ttyUSB";
 };
 
 #endif // IRROBOT_H

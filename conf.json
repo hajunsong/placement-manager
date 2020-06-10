@@ -4,11 +4,14 @@
     "PLACE_VISION_PORT" : 6666,
     "DXL_Origin_Axis_1" : 0,
     "DXL_Down_Axis_2" : -62045,
-    "DXL_Turn_Axis_1" : 131592,
+    "DXL_Turn_Axis_1" : 130592,
     "DXL_Up_Axis_2" : -125432,
     "DXL_Block_Axis_2" : -65405,
     "DXL_Block_Axis_1" : -13884,
     "IRR_Release_Pos" : 0,
-    "IRR_Grip_Pos" : 3000,
-    "IRR_Block_Pos" : 1700
+    "IRR_Grip_Pos" : 3500,
+    "IRR_Block_Pos" : 1700,
+    "IR_MOVING_STATUS_THRESHOLD" : 10,
+    "IR_BLOCKING_STATUS_THRESHOLD" : 160,
+    "DXL_MOVING_STATUS_THRESHOLD" : 10000
 }

@@ -69,8 +69,23 @@ void* ControlMain::mainControl(void *arg){
     pThis->dataControl->dropping = true;
     pThis->mainControlThreadRun = true;
 
+    while(!pThis->dxlControl->isAlive()){
+    }
+    pThis->dataControl->desired_joint_position[0] = pThis->dataControl->present_joint_position[0];
+    pThis->dataControl->desired_joint_position[1] = pThis->dataControl->DXL_Up_Axis_2;
+    pThis->dxl_wait();
+    pThis->dataControl->desired_joint_position[0] = pThis->dataControl->DXL_Origin_Axis_1;
+    pThis->dataControl->desired_joint_position[1] = pThis->dataControl->present_joint_position[1];
+    pThis->dxl_wait();
+
     while(pThis->mainControlThreadRun){
-        if(pThis->placeVM->isAlive() && pThis->mainVM->isAlive()){
+        // if(pThis->dxlControl->isAlive() && pThis->irRobot->isAlive()){
+        //     // pThis->run_block();
+        //     // pThis->run_mover();
+        //     // pThis->run_cancel();
+        //     pThis->run_turn();
+        // }
+        if(pThis->placeVM->isAlive() && pThis->mainVM->isAlive() && pThis->dxlControl->isAlive() && pThis->irRobot->isAlive()){
             if(pThis->dataControl->receive_flag){
                 if(pThis->dataControl->orderMsg.compare("repicking") == 0){
                     if(pThis->dataControl->orderMsg.compare(pThis->dataControl->orderMsgPrev) != 0){
@@ -87,7 +102,7 @@ void* ControlMain::mainControl(void *arg){
                     if(!pThis->dataControl->repicking_object){
                         pThis->dataControl->dropping = false;
                         if(!pThis->dataControl->device_operate){
-                            pThis->run_device();
+                            pThis->run_device(); // flipper 동작 함수
                         }
                         pThis->dataControl->dropping = true;
                     }
@@ -101,7 +116,7 @@ void* ControlMain::mainControl(void *arg){
                     if(pThis->dataControl->dropped){
                         pThis->dataControl->dropping = false;
                         if(!pThis->dataControl->device_operate){
-                            pThis->run_device();
+                            pThis->run_device(); // flipper 동작 함수
                         }
                         pThis->dataControl->dropping = true;
                         pThis->dataControl->dropped = false;
@@ -195,7 +210,7 @@ void ControlMain::run_block()
     cout << "move grip(block)" << endl;
     dataControl->IRR_Tar_Pos_1 = dataControl->IRR_Block_Pos_1;
     dataControl->IRR_Tar_Pos_2 = dataControl->IRR_Block_Pos_2;
-    grip_wait();
+    grip_wait(1);
 
     cout << "move block" << endl;
     dataControl->desired_joint_position[0] = dataControl->DXL_Block_Axis_1;
@@ -217,20 +232,20 @@ void ControlMain::run_cancel(){
 
 void ControlMain::run_grip(){
     cout << "move grip(close)" << endl;
-    dataControl->IRR_Bfr_Pos_1 = 4000;
-    dataControl->IRR_Bfr_Pos_2 = 4000;
+    // dataControl->IRR_Bfr_Pos_1 = dataControl->IRR_Release_Pos_1;
+    // dataControl->IRR_Bfr_Pos_2 = dataControl->IRR_Release_Pos_2;
     dataControl->IRR_Tar_Pos_1 = dataControl->IRR_Grip_Pos_1;
     dataControl->IRR_Tar_Pos_2 = dataControl->IRR_Grip_Pos_2;
-    grip_wait();
+    grip_wait(1);
 }
 
 void ControlMain::run_grip_release(){
     cout << "move grip(open)" << endl;
-    dataControl->IRR_Bfr_Pos_1 = 4000;
-    dataControl->IRR_Bfr_Pos_2 = 4000;
+    // dataControl->IRR_Bfr_Pos_1 = dataControl->IRR_Grip_Pos_1;
+    // dataControl->IRR_Bfr_Pos_2 = dataControl->IRR_Grip_Pos_2;
     dataControl->IRR_Tar_Pos_1 = dataControl->IRR_Release_Pos_1;
     dataControl->IRR_Tar_Pos_2 = dataControl->IRR_Release_Pos_2;
-    grip_wait();
+    grip_wait(0);
 }
 
 void ControlMain::run_mover(){
@@ -248,8 +263,8 @@ void ControlMain::dxl_wait()
 {
     cout << "dxl wait start" << endl;
     dataControl->logger->write("dxl wait start");
-    while(abs(dataControl->present_joint_position[0] - dataControl->desired_joint_position[0]) > DXL_MOVING_STATUS_THRESHOLD ||
-            abs(dataControl->present_joint_position[1] - dataControl->desired_joint_position[1]) > DXL_MOVING_STATUS_THRESHOLD)
+    while(abs(dataControl->present_joint_position[0] - dataControl->desired_joint_position[0]) > dataControl->DXL_MOVING_STATUS_THRESHOLD ||
+            abs(dataControl->present_joint_position[1] - dataControl->desired_joint_position[1]) > dataControl->DXL_MOVING_STATUS_THRESHOLD)
     {
         usleep(1000);
 //        cout << "Present Position 1 : " << dataControl->present_joint_position[0] << endl;
@@ -263,33 +278,46 @@ void ControlMain::dxl_wait()
     dataControl->logger->write("dxl wait finish");
 }
 
-void ControlMain::grip_wait()
+void ControlMain::grip_wait(int direction)
 {
     cout << "grip wait start" << endl;
     dataControl->logger->write("grip wait start");
-    int g_flgGripCnt = 0;
+    int g_flgGripCnt = 1;
 
-    while(abs(dataControl->IRR_Cur_Pos_1 - dataControl->IRR_Tar_Pos_1) > IR_MOVING_STATUS_THRESHOLD ||
-          abs(dataControl->IRR_Cur_Pos_2 - dataControl->IRR_Tar_Pos_2) > IR_MOVING_STATUS_THRESHOLD)
+    while(abs(dataControl->IRR_Cur_Pos_1 - dataControl->IRR_Tar_Pos_1) > dataControl->IR_MOVING_STATUS_THRESHOLD ||
+          abs(dataControl->IRR_Cur_Pos_2 - dataControl->IRR_Tar_Pos_2) > dataControl->IR_MOVING_STATUS_THRESHOLD)
     {
-        usleep(100000);
+        usleep(200);
 
-        if(g_flgGripCnt > 3){
-            if(abs(dataControl->IRR_Cur_Pos_1 - dataControl->IRR_Bfr_Pos_1) <= IR_BLOCKING_STATUS_THRESHOLD ||
-                    abs(dataControl->IRR_Cur_Pos_2 - dataControl->IRR_Bfr_Pos_2) <= IR_BLOCKING_STATUS_THRESHOLD){
+        if(direction == 1){
+            if(g_flgGripCnt % 1000 == 0){
+                if(abs(dataControl->IRR_Cur_Pos_1 - dataControl->IRR_Bfr_Pos_1) <= dataControl->IR_BLOCKING_STATUS_THRESHOLD &&
+                        abs(dataControl->IRR_Cur_Pos_2 - dataControl->IRR_Bfr_Pos_2) <= dataControl->IR_BLOCKING_STATUS_THRESHOLD){
 
-                irRobot->setMotonOffDual();
+                    irRobot->setMotonOffDual();
 
-                dataControl->IRR_Tar_Pos_1 = dataControl->IRR_Cur_Pos_1;
-                dataControl->IRR_Tar_Pos_2 = dataControl->IRR_Cur_Pos_2;
-                break;
+                    dataControl->IRR_Tar_Pos_1 = dataControl->IRR_Cur_Pos_1;
+                    dataControl->IRR_Tar_Pos_2 = dataControl->IRR_Cur_Pos_2;
+                    break;
+                }
+
+                // dataControl->IRR_Bfr_Pos_1 = dataControl->IRR_Cur_Pos_1;
+                // dataControl->IRR_Bfr_Pos_2 = dataControl->IRR_Cur_Pos_2;
+
+                // cout << abs(dataControl->IRR_Cur_Pos_1 - dataControl->IRR_Bfr_Pos_1) << endl;
+                // cout << abs(dataControl->IRR_Cur_Pos_2 - dataControl->IRR_Bfr_Pos_2) << endl;
+                // cout << "Present Position 1 : " << dataControl->IRR_Cur_Pos_1 << endl;
+                // cout << "Present Position 2 : " << dataControl->IRR_Cur_Pos_2 << endl;
+                // cout << "Desired Position 1 : " << dataControl->IRR_Tar_Pos_1 << endl;
+                // cout << "Desired Position 2 : " << dataControl->IRR_Tar_Pos_2 << endl;
+                // cout << "Before Position 1 : " << dataControl->IRR_Bfr_Pos_1 << endl;
+                // cout << "Before Position 2 : " << dataControl->IRR_Bfr_Pos_2 << endl;
             }
-
-            dataControl->IRR_Bfr_Pos_1 = dataControl->IRR_Cur_Pos_1;
-            dataControl->IRR_Bfr_Pos_2 = dataControl->IRR_Cur_Pos_2;
+            g_flgGripCnt++;
         }
-        g_flgGripCnt++;
     }
     cout << "grip wait finish" << endl;
     dataControl->logger->write("grip wait finish");
+    // cout << dataControl->IRR_Cur_Pos_1 << endl;
+    // cout << dataControl->IRR_Cur_Pos_2 << endl;
 }

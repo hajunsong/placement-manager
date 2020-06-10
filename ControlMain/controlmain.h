@@ -44,7 +44,7 @@ private:
     bool mainControlThreadRun;
     void run_device();
     void dxl_wait();
-    void grip_wait();
+    void grip_wait(int direction);
 };
 
 #endif // CONTROLMAIN_H
