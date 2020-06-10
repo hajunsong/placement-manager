@@ -1,3 +1,0 @@
-/home/keti/Project/placement-manager/build2/CMakeFiles/rebuild_cache.dir
-/home/keti/Project/placement-manager/build2/CMakeFiles/placement_manager.dir
-/home/keti/Project/placement-manager/build2/CMakeFiles/edit_cache.dir

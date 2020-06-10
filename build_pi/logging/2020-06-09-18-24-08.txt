@@ -1,4 +1,0 @@
-2020-06-09-18-24-09	=============== Application Start ==============
-2020-06-09-18-24-09	dxl wait start
-2020-06-09-18-24-09	dxl wait finish
-2020-06-09-18-24-09	grip wait start
