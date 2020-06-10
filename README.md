@@ -80,3 +80,14 @@ IRR_Grip_Pos : The position of the gripper when closing the gripper.
 
 IRR_Block_Pos : The position of the gripper when blocking the object.
 ~~~
+
+### 5. Running on the Raspberry PI
+open terminal
+~~~
+$ ssh pi@192.168.0.123
+$ cd Project/placement-manager
+$ mkdir build
+$ cmake ../
+$ make
+$ ./placement-manager
+~~~
