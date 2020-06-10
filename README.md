@@ -10,6 +10,7 @@
 
 ### 1. Dynamixel SDK Download & Install
 [DynamixelSDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/download/)
+
 [DynamixelSDK Protocol 2.0](https://emanual.robotis.com/docs/en/dxl/protocol2/)
 ~~~
 $ git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git
@@ -85,6 +86,7 @@ IRR_Block_Pos : The position of the gripper when blocking the object.
 open terminal
 ~~~
 $ ssh pi@192.168.0.123
+password : keti1234
 $ cd Project/placement-manager
 $ mkdir build
 $ cmake ../
